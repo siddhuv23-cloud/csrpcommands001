@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RP Zone — CS RP Commands Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  :root {
+    --bg: #050a14;
+    --surface: #0b1628;
+    --surface2: #0f1e36;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #e2eaf7;
+    --muted: #6a85aa;
+    --border: rgba(0,212,255,0.15);
+    --glow: 0 0 30px rgba(0,212,255,0.3);
+    --glow2: 0 0 30px rgba(255,107,53,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 72px;
+    background: rgba(5,10,20,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-links { display: flex; align-items: center; gap: 40px; }
+
+  .nav-links a {
+    text-decoration: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--accent); }
+  .nav-links a.active::after { width: 100%; }
+
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent) !important;
+    padding: 8px 20px;
+    border-radius: 4px;
+    transition: background 0.3s !important;
+  }
+  .nav-cta:hover { background: rgba(0,212,255,0.1) !important; }
+  .nav-cta::after { display: none !important; }
+
+  .hamburger { display: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; }
+
+  /* ===== HERO (PAGE HEADER) ===== */
+  .page-hero {
+    position: relative;
+    padding: 160px 48px 100px;
+    text-align: center;
+    overflow: hidden;
+    min-height: 52vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: pulse 6s ease-in-out infinite;
+  }
+  .hero-orb-1 { width: 500px; height: 500px; top: -120px; left: -100px; background: rgba(0,212,255,0.08); animation-delay: 0s; }
+  .hero-orb-2 { width: 400px; height: 400px; bottom: -80px; right: -50px; background: rgba(124,58,237,0.1); animation-delay: 3s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+
+  .page-hero-content { position: relative; z-index: 2; max-width: 740px; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .page-hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4.4rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .page-hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), #0094ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto 40px;
+    line-height: 1.8;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,22,40,0.6);
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-item {
+    flex: 1;
+    max-width: 220px;
+    text-align: center;
+    padding: 28px 20px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .section-tag {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .section-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .section-header p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ===== SERVERS SECTION ===== */
+  .servers-section {
+    padding: 100px 48px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .servers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .server-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
+    cursor: pointer;
+  }
+
+  .server-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .server-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .server-card:hover::before { transform: scaleX(1); }
+
+  .card-header-band {
+    height: 8px;
+    background: linear-gradient(90deg, var(--card-accent, var(--accent)), transparent);
+    opacity: 0.5;
+  }
+
+  .server-card-body { padding: 32px 28px 20px; }
+
+  .server-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--card-accent, var(--accent));
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px color-mix(in srgb, var(--card-accent, var(--accent)) 20%, transparent);
+  }
+
+  .server-card-body h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .server-card-body p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 24px;
+  }
+
+  .server-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px 24px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    color: var(--card-accent, var(--accent));
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: gap 0.3s;
+  }
+  .card-link:hover { gap: 12px; }
+
+  .card-arrow {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    transition: all 0.3s;
+  }
+  .server-card:hover .card-arrow {
+    border-color: var(--card-accent, var(--accent));
+    color: var(--card-accent, var(--accent));
+  }
+
+  .card-en1 { --card-accent: #00d4ff; }
+  .card-en2 { --card-accent: #ff6b35; }
+  .card-en3 { --card-accent: #7c3aed; }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    max-width: 1100px;
+    margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ===== FORUMS SECTION ===== */
+  .forums-section {
+    padding: 100px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .forums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .forum-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
+  }
+
+  .forum-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--fcard-accent, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+  .forum-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.12); }
+  .forum-card:hover::before { transform: scaleX(1); }
+
+  .forum-img-wrap {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--surface2), var(--bg));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .forum-img-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to top, var(--surface), transparent);
+  }
+
+  .forum-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease, filter 0.4s;
+    filter: brightness(0.8) saturate(1.1);
+  }
+  .forum-card:hover .forum-img-wrap img { transform: scale(1.06); filter: brightness(0.95) saturate(1.2); }
+
+  .forum-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--fcard-accent, var(--accent));
+    opacity: 0.3;
+    letter-spacing: 4px;
+  }
+
+  .forum-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    color: var(--fcard-accent, var(--accent));
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  .forum-body { padding: 24px 24px 16px; }
+
+  .forum-body h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .forum-body p { font-size: 0.86rem; color: var(--muted); line-height: 1.7; }
+
+  .forum-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px 20px;
+  }
+
+  .fcard-en1 { --fcard-accent: #00d4ff; }
+  .fcard-en2 { --fcard-accent: #ff6b35; }
+  .fcard-en3 { --fcard-accent: #7c3aed; }
+
+  /* Rules banner */
+  .rules-banner {
+    max-width: 1100px;
+    margin: 0 auto 48px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .rules-banner:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  .rules-banner .rules-icon {
+    font-size: 1.6rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .rules-banner-text h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .rules-banner-text p {
+    font-size: 0.84rem;
+    color: var(--muted);
+  }
+  .rules-banner .rules-arrow {
+    margin-left: auto;
+    color: var(--accent);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* ===== CTA SECTION ===== */
+  .cta-section {
+    padding: 100px 48px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .cta-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 72px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-inner::before {
+    content: '';
+    position: absolute;
+    top: -40%; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,212,255,0.1), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-glyph {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4rem;
+    color: rgba(0,212,255,0.06);
+    position: absolute;
+    bottom: 20px; right: 30px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .cta-inner h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+
+  .cta-inner p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    position: relative; z-index: 1;
+  }
+
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  .btn-discord {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #5865F2;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(88,101,242,0.4);
+  }
+  .btn-discord:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(88,101,242,0.6); }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: #050a14;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 0 40px rgba(0,212,255,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 50px rgba(0,212,255,0.6); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    background: rgba(5,10,20,0.8);
+    padding: 60px 48px 40px;
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand p { color: var(--muted); font-size: 0.85rem; line-height: 1.7; max-width: 260px; }
+
+  .footer-socials { display: flex; gap: 12px; margin-top: 24px; }
+
+  .social-btn {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+  }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); transform: translateY(-2px); }
+
+  .footer-links h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .footer-links ul li a { text-decoration: none; color: var(--muted); font-size: 0.88rem; transition: color 0.3s; }
+  .footer-links ul li a:hover { color: var(--text); }
+
+  .footer-bottom {
+    max-width: 1100px;
+    margin: 40px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-bottom p { color: var(--muted); font-size: 0.82rem; }
+  .footer-bottom a { color: var(--accent); text-decoration: none; }
+
+  /* ===== MOBILE NAV ===== */
+  .mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,20,0.98);
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .mobile-overlay.active { display: flex; }
+  .mobile-overlay a {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .mobile-overlay a:hover { color: var(--accent); }
+  .mobile-close { position: absolute; top: 24px; right: 24px; color: var(--muted); font-size: 1.5rem; cursor: pointer; transition: color 0.3s; }
+  .mobile-close:hover { color: var(--accent); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .hamburger { display: block; }
+    .page-hero { padding: 130px 24px 70px; }
+    .servers-section, .forums-section, .cta-section { padding: 60px 24px; }
+    .servers-grid, .forums-grid { grid-template-columns: 1fr; }
+    .cta-inner { padding: 48px 24px; }
+    .stats-bar { flex-wrap: wrap; }
+    .stat-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+    footer { padding: 48px 24px 32px; }
+    .footer-inner { flex-direction: column; gap: 40px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .rules-banner { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.png" alt="CS RP Commands Zone" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="rpzone.html" class="active">RP ZONE</a>
+    <a href="https://discord.gg/MmtqhsJJPF" class="nav-cta">DISCORD</a>
+  </div>
+  <i class="fa fa-bars hamburger" onclick="openMenu()"></i>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-overlay" id="mobileOverlay">
+  <i class="fa fa-close mobile-close" onclick="closeMenu()"></i>
+  <a href="index.html" onclick="closeMenu()">HOME</a>
+  <a href="about.html" onclick="closeMenu()">ABOUT</a>
+  <a href="rpzone.html" onclick="closeMenu()">RP ZONE</a>
+  <a href="https://discord.gg/MmtqhsJJPF" onclick="closeMenu()">DISCORD</a>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<section class="page-hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+
+  <div class="page-hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      ALL 3 SERVERS ACTIVE
+    </div>
+    <h1>Grand RP <span class="highlight">Commands</span> Zone</h1>
+    <p>Select your server below to access full roleplay commands, organization guides, and forum links for Grand RP EN.</p>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">3</span>
+    <span class="stat-label">EN Servers</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">100+</span>
+    <span class="stat-label">RP Commands</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">6+</span>
+    <span class="stat-label">Organizations</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">24/7</span>
+    <span class="stat-label">Live Support</span>
+  </div>
+</div>
+
+<!-- ===== SERVER SELECT SECTION ===== -->
+<section class="servers-section">
+  <div class="section-header">
+    <span class="section-tag">— Choose Your Server —</span>
+    <h2>Grand RP EN Servers</h2>
+    <p>Select the server you play on to browse its RP commands and organization protocols.</p>
+  </div>
+
+  <div class="servers-grid">
+
+    <div class="server-card card-en1">
+      <div class="card-header-band"></div>
+      <div class="server-card-body">
+        <div class="server-icon"><i class="fa fa-server"></i></div>
+        <h3>Grand EN : 1</h3>
+        <p>The flagship English roleplay server. Home to a large active community with fully developed organizations, economy, and law enforcement factions running around the clock.</p>
+      </div>
+      <div class="server-card-footer">
+        <a href="en 1 main.html" class="card-link">View Commands <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-chevron-right"></i></div>
+      </div>
+    </div>
+
+    <div class="server-card card-en2">
+      <div class="card-header-band"></div>
+      <div class="server-card-body">
+        <div class="server-icon"><i class="fa fa-server"></i></div>
+        <h3>Grand EN : 2</h3>
+        <p>A thriving second English server offering the same immersive roleplay experience. Perfect for players looking for a fresh environment with a growing player base.</p>
+      </div>
+      <div class="server-card-footer">
+        <a href="en 2 main.html" class="card-link">View Commands <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-chevron-right"></i></div>
+      </div>
+    </div>
+
+    <div class="server-card card-en3">
+      <div class="card-header-band"></div>
+      <div class="server-card-body">
+        <div class="server-icon"><i class="fa fa-server"></i></div>
+        <h3>Grand EN : 3</h3>
+        <p>The newest English server with an active community and all core RP systems in place. Great for new players and veterans exploring a fresh start in Los Santos.</p>
+      </div>
+      <div class="server-card-footer">
+        <a href="en 3 main.html" class="card-link">View Commands <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-chevron-right"></i></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== FORUMS SECTION ===== -->
+<section class="forums-section">
+  <div class="section-header">
+    <span class="section-tag">— Official Channels —</span>
+    <h2>Grand RP EN Forum Links</h2>
+    <p>Submit complaints, access technical support, and engage with the official Grand RP community forums.</p>
+  </div>
+
+  <!-- Rules Banner -->
+  <a href="https://gta5grand.com/forum/rules/" class="rules-banner" target="_blank">
+    <div class="rules-icon"><i class="fa fa-shield"></i></div>
+    <div class="rules-banner-text">
+      <h4>RP Forum Rules & Guidelines</h4>
+      <p>Read the official rules before posting. All players are required to follow these guidelines across all servers.</p>
+    </div>
+    <i class="fa fa-external-link rules-arrow"></i>
+  </a>
+
+  <div class="forums-grid">
+
+    <div class="forum-card fcard-en1">
+      <div class="forum-img-wrap">
+        <img src="images/EN1.png" alt="Grand EN 1 Forum" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="forum-img-placeholder" style="display:none;">EN:1</div>
+        <div class="forum-badge">EN : 1</div>
+      </div>
+      <div class="forum-body">
+        <h3>Grand EN: 1 — Forums</h3>
+        <p>File complaints against players or administrators, access technical support threads, and participate in the official EN:1 community discussions.</p>
+      </div>
+      <div class="forum-footer">
+        <a href="https://gta5grand.com/forum/en/" class="card-link" target="_blank">Open Forum <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-external-link" style="font-size:0.75rem;"></i></div>
+      </div>
+    </div>
+
+    <div class="forum-card fcard-en2">
+      <div class="forum-img-wrap">
+        <img src="images/EN2.png" alt="Grand EN 2 Forum" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="forum-img-placeholder" style="display:none;">EN:2</div>
+        <div class="forum-badge">EN : 2</div>
+      </div>
+      <div class="forum-body">
+        <h3>Grand EN: 2 — Forums</h3>
+        <p>File complaints against players or administrators, access technical support threads, and participate in the official EN:2 community discussions.</p>
+      </div>
+      <div class="forum-footer">
+        <a href="https://gta5grand.com/forum/en_2/" class="card-link" target="_blank">Open Forum <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-external-link" style="font-size:0.75rem;"></i></div>
+      </div>
+    </div>
+
+    <div class="forum-card fcard-en3">
+      <div class="forum-img-wrap">
+        <img src="images/EN3.png" alt="Grand EN 3 Forum" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="forum-img-placeholder" style="display:none;">EN:3</div>
+        <div class="forum-badge">EN : 3</div>
+      </div>
+      <div class="forum-body">
+        <h3>Grand EN: 3 — Forums</h3>
+        <p>File complaints against players or administrators, access technical support threads, and participate in the official EN:3 community discussions.</p>
+      </div>
+      <div class="forum-footer">
+        <a href="https://gta5grand.com/forum/en_3/" class="card-link" target="_blank">Open Forum <i class="fa fa-arrow-right"></i></a>
+        <div class="card-arrow"><i class="fa fa-external-link" style="font-size:0.75rem;"></i></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glyph">{ }</div>
+    <h2>Join the Community</h2>
+    <p>Report issues, suggest RP commands, request updates, or share your roleplay experience with fellow players across all EN servers.</p>
+    <div class="cta-btns">
+      <a href="https://discord.gg/MmtqhsJJPF" class="btn-discord">
+        <i class="fa fa-comments"></i> JOIN DISCORD
+      </a>
+      <a href="https://gta5grand.com/?ref=75647" class="btn-primary" target="_blank">
+        <i class="fa fa-play"></i> JOIN GRAND RP
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="images/logo.png" alt="CS RP Commands Zone" style="height:40px;width:auto;object-fit:contain;margin-bottom:12px;display:block;" onerror="this.style.display='none'">
+      <p>Your definitive resource for Grand RP commands, organization guides, and roleplay rules. Built by players, for players.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fa fa-facebook"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-linkedin"></i></a>
+        <a href="https://www.youtube.com/@satishch2187" class="social-btn"><i class="fa fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="rpzone.html">RP Zone</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Servers</h4>
+      <ul>
+        <li><a href="en 1 main.html">Grand EN : 1</a></li>
+        <li><a href="en 2 main.html">Grand EN : 2</a></li>
+        <li><a href="en 3 main.html">Grand EN : 3</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://discord.gg/MmtqhsJJPF">Discord</a></li>
+        <li><a href="https://gta5grand.com/?ref=75647">Grand RP</a></li>
+        <li><a href="https://www.youtube.com/@satishch2187">YouTube</a></li>
+        <li><a href="https://gta5grand.com/forum/rules/">Forum Rules</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 CS RP Commands Zone. All rights reserved.</p>
+    <p>Made with <i class="fa fa-heart" style="color:var(--accent2)"></i> by <a href="https://www.youtube.com/@satishch2187">Satish Royal Player</a> — EN:1, EN:2, EN:3</p>
+  </div>
+</footer>
+
+<script>
+  function openMenu() {
+    document.getElementById('mobileOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    document.getElementById('mobileOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(el => {
+      if (el.isIntersecting) {
+        el.target.style.opacity = '1';
+        el.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.server-card, .forum-card').forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(32px)';
+    card.style.transition = `opacity 0.6s ${i * 0.1}s ease, transform 0.6s ${i * 0.1}s ease, box-shadow 0.4s, border-color 0.4s`;
+    observer.observe(card);
+  });
+
+  document.querySelectorAll('.stat-item').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = `opacity 0.5s ${i * 0.1}s ease, transform 0.5s ${i * 0.1}s ease`;
+    observer.observe(el);
+  });
+
+  // Navbar shadow on scroll
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.style.boxShadow = window.scrollY > 40 ? '0 4px 40px rgba(0,0,0,0.4)' : 'none';
+  });
+</script>
+
+</body>
+</html>

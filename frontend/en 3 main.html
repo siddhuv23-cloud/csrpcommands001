@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grand EN:3 Commands — CS RP Commands Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  :root {
+    --bg: #050a14;
+    --surface: #0b1628;
+    --surface2: #0f1e36;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #e2eaf7;
+    --muted: #6a85aa;
+    --border: rgba(0,212,255,0.15);
+    --glow: 0 0 30px rgba(0,212,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 72px;
+    background: rgba(5,10,20,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-links { display: flex; align-items: center; gap: 40px; }
+
+  .nav-links a {
+    text-decoration: none;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    transition: color 0.3s;
+    position: relative;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--accent); }
+  .nav-links a.active::after { width: 100%; }
+
+  .nav-cta {
+    background: transparent !important;
+    border: 1px solid var(--accent);
+    color: var(--accent) !important;
+    padding: 8px 20px;
+    border-radius: 4px;
+    transition: background 0.3s !important;
+  }
+  .nav-cta:hover { background: rgba(0,212,255,0.1) !important; }
+  .nav-cta::after { display: none !important; }
+
+  .hamburger { display: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; }
+
+  /* ===== PAGE HERO ===== */
+  .page-hero {
+    position: relative;
+    padding: 160px 48px 100px;
+    text-align: center;
+    overflow: hidden;
+    min-height: 52vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: pulse 6s ease-in-out infinite;
+  }
+  .hero-orb-1 { width: 500px; height: 500px; top: -120px; left: -100px; background: rgba(0,212,255,0.08); animation-delay: 0s; }
+  .hero-orb-2 { width: 400px; height: 400px; bottom: -80px; right: -50px; background: rgba(124,58,237,0.1); animation-delay: 3s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+
+  .page-hero-content { position: relative; z-index: 2; max-width: 740px; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-badge .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .page-hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 6vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .page-hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), #0094ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.8;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  /* breadcrumb */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb .sep { color: rgba(255,255,255,0.15); }
+  .breadcrumb .current { color: var(--accent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar {
+    position: relative; z-index: 2;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(11,22,40,0.6);
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-item {
+    flex: 1;
+    max-width: 220px;
+    text-align: center;
+    padding: 24px 20px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ===== ORG SECTION ===== */
+  .orgs-section {
+    padding: 100px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .section-tag {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .section-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .section-header p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ===== ORG CARDS ===== */
+  .orgs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* per-card accent colors */
+  .card-gov  { --card-accent: #00d4ff; }
+  .card-fib  { --card-accent: #ff6b35; }
+  .card-lspd { --card-accent: #3b82f6; }
+  .card-sahp { --card-accent: #10b981; }
+  .card-ems  { --card-accent: #ef4444; }
+  .card-ng   { --card-accent: #8b5cf6; }
+  .card-li   { --card-accent: #f59e0b; }
+  .card-arrest { --card-accent: #ec4899; }
+  .card-train  { --card-accent: #06b6d4; }
+
+  .org-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+
+  .org-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .org-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .org-card:hover::before { transform: scaleX(1); }
+
+  /* glow bg on hover */
+  .org-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, color-mix(in srgb, var(--card-accent) 8%, transparent), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .org-card:hover::after { opacity: 1; }
+
+  .card-inner {
+    padding: 32px 28px 28px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .org-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--card-accent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--card-accent) 20%, transparent);
+    transition: box-shadow 0.3s;
+  }
+  .org-card:hover .org-icon {
+    box-shadow: 0 0 32px color-mix(in srgb, var(--card-accent) 40%, transparent);
+  }
+
+  .org-tag {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--card-accent);
+    background: color-mix(in srgb, var(--card-accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--card-accent) 25%, transparent);
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+
+  .card-inner h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-inner p {
+    font-size: 0.87rem;
+    color: var(--muted);
+    line-height: 1.75;
+    flex-grow: 1;
+    margin-bottom: 24px;
+  }
+
+  .card-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .card-link-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 1.5px;
+    color: var(--card-accent);
+    text-transform: uppercase;
+    transition: gap 0.3s;
+  }
+  .org-card:hover .card-link-label { gap: 10px; }
+
+  .card-arrow-box {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    transition: all 0.3s;
+  }
+  .org-card:hover .card-arrow-box {
+    border-color: var(--card-accent);
+    color: var(--card-accent);
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ===== CTA ===== */
+  .cta-section {
+    padding: 100px 48px;
+    position: relative; z-index: 1;
+    overflow: hidden;
+  }
+
+  .cta-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 72px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-inner::before {
+    content: '';
+    position: absolute;
+    top: -40%; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,212,255,0.1), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-glyph {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4rem;
+    color: rgba(0,212,255,0.06);
+    position: absolute;
+    bottom: 20px; right: 30px;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .cta-inner h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+
+  .cta-inner p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    position: relative; z-index: 1;
+  }
+
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  .btn-discord {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #5865F2;
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(88,101,242,0.4);
+  }
+  .btn-discord:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(88,101,242,0.6); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    background: rgba(5,10,20,0.8);
+    padding: 60px 48px 40px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand p { color: var(--muted); font-size: 0.85rem; line-height: 1.7; max-width: 260px; }
+
+  .footer-socials { display: flex; gap: 12px; margin-top: 24px; }
+
+  .social-btn {
+    width: 40px; height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+  }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); transform: translateY(-2px); }
+
+  .footer-links h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links ul li a { text-decoration: none; color: var(--muted); font-size: 0.88rem; transition: color 0.3s; }
+  .footer-links ul li a:hover { color: var(--text); }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-bottom p { color: var(--muted); font-size: 0.82rem; }
+  .footer-bottom a { color: var(--accent); text-decoration: none; }
+
+  /* ===== MOBILE NAV ===== */
+  .mobile-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.98);
+    backdrop-filter: blur(20px);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .mobile-overlay.active { display: flex; }
+  .mobile-overlay a {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .mobile-overlay a:hover { color: var(--accent); }
+  .mobile-close { position: absolute; top: 24px; right: 24px; color: var(--muted); font-size: 1.5rem; cursor: pointer; transition: color 0.3s; }
+  .mobile-close:hover { color: var(--accent); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .hamburger { display: block; }
+    .page-hero { padding: 130px 24px 70px; }
+    .orgs-section, .cta-section { padding: 60px 24px; }
+    .orgs-grid { grid-template-columns: 1fr; }
+    .cta-inner { padding: 48px 24px; }
+    .stats-bar { flex-wrap: wrap; }
+    .stat-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+    footer { padding: 48px 24px 32px; }
+    .footer-inner { flex-direction: column; gap: 40px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.png" alt="CS RP Commands Zone" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="rpzone.html" class="active">RP ZONE</a>
+    <a href="https://discord.gg/MmtqhsJJPF" class="nav-cta">DISCORD</a>
+  </div>
+  <i class="fa fa-bars hamburger" onclick="openMenu()"></i>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-overlay" id="mobileOverlay">
+  <i class="fa fa-close mobile-close" onclick="closeMenu()"></i>
+  <a href="index.html" onclick="closeMenu()">HOME</a>
+  <a href="about.html" onclick="closeMenu()">ABOUT</a>
+  <a href="rpzone.html" onclick="closeMenu()">RP ZONE</a>
+  <a href="https://discord.gg/MmtqhsJJPF" onclick="closeMenu()">DISCORD</a>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<section class="page-hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+
+  <div class="page-hero-content">
+    <div class="breadcrumb">
+      <a href="index.html">HOME</a>
+      <span class="sep">/</span>
+      <a href="rpzone.html">RP ZONE</a>
+      <span class="sep">/</span>
+      <span class="current">GRAND EN : 3</span>
+    </div>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      SERVER EN : 3 — LIVE
+    </div>
+    <h1>Grand RP <span class="highlight">EN : 3</span> Commands</h1>
+    <p>Select your organization below to access full roleplay commands, protocols, and procedures for Grand EN:3.</p>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">7</span>
+    <span class="stat-label">Organizations</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">100+</span>
+    <span class="stat-label">RP Commands</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">EN:3</span>
+    <span class="stat-label">Active Server</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">24/7</span>
+    <span class="stat-label">Live Support</span>
+  </div>
+</div>
+
+<!-- ===== ORGANIZATIONS ===== -->
+<section class="orgs-section">
+  <div class="section-header">
+    <span class="section-tag">— EN : 3 Organizations —</span>
+    <h2>Choose Your Organization</h2>
+    <p>Browse commands, procedures and roleplay guides for each faction active on Grand EN:3.</p>
+  </div>
+
+  <div class="orgs-grid">
+
+    <!-- GOV -->
+    <a href="gov%20en3.html" class="org-card card-gov">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-institution"></i></div>
+          <span class="org-tag">GOV</span>
+        </div>
+        <h3>Government</h3>
+        <p>The governing body of Los Santos. Responsible for city legislation, policy enforcement, and managing all official state affairs across every district.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- FIB -->
+    <a href="fib%20en3.html" class="org-card card-fib">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-eye"></i></div>
+          <span class="org-tag">FIB</span>
+        </div>
+        <h3>FIB</h3>
+        <p>The Federal Investigation Bureau. Elite intelligence and counter-crime division handling high-priority investigations, surveillance, and federal law enforcement operations.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- LSPD -->
+    <a href="lspd%20en3.html" class="org-card card-lspd">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-shield"></i></div>
+          <span class="org-tag">LSPD</span>
+        </div>
+        <h3>LSPD</h3>
+        <p>Los Santos Police Department — the primary law enforcement agency of the city. Handles patrol, crime response, traffic control, and civilian safety across Los Santos.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- SAHP -->
+    <a href="sahp%20en3.html" class="org-card card-sahp">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-car"></i></div>
+          <span class="org-tag">SAHP</span>
+        </div>
+        <h3>SAHP</h3>
+        <p>San Andreas Highway Patrol. Responsible for highway safety, vehicle pursuit operations, and maintaining order on intercity roads and rural routes throughout the state.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- EMS -->
+    <a href="ems%20en3.html" class="org-card card-ems">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-ambulance"></i></div>
+          <span class="org-tag">EMS</span>
+        </div>
+        <h3>EMS</h3>
+        <p>Emergency Medical Services. First responders providing medical assistance, trauma care, and critical life support to civilians and officers throughout the city.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- NG -->
+    <a href="ng%20en3.html" class="org-card card-ng">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-star"></i></div>
+          <span class="org-tag">NG</span>
+        </div>
+        <h3>National Guard</h3>
+        <p>Military reserve force deployed in extreme civil unrest situations. Operates alongside law enforcement to restore order during riots, disasters, and state emergencies.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- LI -->
+    <a href="li_en3.html" class="org-card card-li">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-newspaper-o"></i></div>
+          <span class="org-tag">LI</span>
+        </div>
+        <h3>Lifeinvader</h3>
+        <p>Los Santos' main media organization. Publishing daily news covering legal organizations, crime, advertising, and incident reports — the city's go-to source for all updates.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Commands <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- ARREST PROCEDURE -->
+    <a href="arresting%20en1.html" class="org-card card-arrest">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-lock"></i></div>
+          <span class="org-tag">PROCEDURE</span>
+        </div>
+        <h3>Arrest Procedure</h3>
+        <p>Official EN:3 arrest protocols and procedures. Covers lawful detention steps, Miranda rights, evidence handling, and processing for all law enforcement officers.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Guide <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- TRAINING GUIDE -->
+    <a href="training%20en1.html" class="org-card card-train">
+      <div class="card-inner">
+        <div class="card-top">
+          <div class="org-icon"><i class="fa fa-graduation-cap"></i></div>
+          <span class="org-tag">TRAINING</span>
+        </div>
+        <h3>Training Guide</h3>
+        <p>Complete training manual for new recruits and promotions across all EN:3 organizations. Covers onboarding steps, evaluation criteria, and standard operating procedures.</p>
+        <div class="card-footer-row">
+          <span class="card-link-label">View Guide <i class="fa fa-arrow-right"></i></span>
+          <div class="card-arrow-box"><i class="fa fa-chevron-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glyph">{ }</div>
+    <h2>Join the Community</h2>
+    <p>Report issues, suggest RP commands, request updates, or share your roleplay experience with fellow players on EN:3.</p>
+    <div class="cta-btns">
+      <a href="https://discord.gg/MmtqhsJJPF" class="btn-discord">
+        <i class="fa fa-comments"></i> JOIN DISCORD
+      </a>
+      <a href="rpzone.html" class="btn-secondary">
+        <i class="fa fa-arrow-left"></i> BACK TO RP ZONE
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="images/logo.png" alt="CS RP Commands Zone" style="height:40px;width:auto;object-fit:contain;margin-bottom:12px;display:block;" onerror="this.style.display='none'">
+      <p>Your definitive resource for Grand RP commands, organization guides, and roleplay rules. Built by players, for players.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fa fa-facebook"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-linkedin"></i></a>
+        <a href="https://www.youtube.com/@satishch2187" class="social-btn"><i class="fa fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="rpzone.html">RP Zone</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>EN:3 Organizations</h4>
+      <ul>
+        <li><a href="gov%20en3.html">Government</a></li>
+        <li><a href="fib%20en3.html">FIB</a></li>
+        <li><a href="lspd%20en3.html">LSPD</a></li>
+        <li><a href="sahp%20en3.html">SAHP</a></li>
+        <li><a href="ems%20en3.html">EMS</a></li>
+        <li><a href="ng%20en3.html">National Guard</a></li>
+        <li><a href="li%20en3.html">Lifeinvader</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://discord.gg/MmtqhsJJPF">Discord</a></li>
+        <li><a href="https://gta5grand.com/?ref=75647">Grand RP</a></li>
+        <li><a href="https://www.youtube.com/@satishch2187">YouTube</a></li>
+        <li><a href="https://gta5grand.com/forum/en_3/">EN:3 Forum</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 CS RP Commands Zone. All rights reserved.</p>
+    <p>Made with <i class="fa fa-heart" style="color:var(--accent2)"></i> by <a href="https://www.youtube.com/@satishch2187">Satish Royal Player</a> — EN:1, EN:2, EN:3</p>
+  </div>
+</footer>
+
+<script>
+  function openMenu() {
+    document.getElementById('mobileOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    document.getElementById('mobileOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(el => {
+      if (el.isIntersecting) {
+        el.target.style.opacity = '1';
+        el.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.org-card').forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(32px)';
+    card.style.transition = `opacity 0.6s ${i * 0.08}s ease, transform 0.6s ${i * 0.08}s ease, box-shadow 0.4s, border-color 0.4s`;
+    observer.observe(card);
+  });
+
+  document.querySelectorAll('.stat-item').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = `opacity 0.5s ${i * 0.1}s ease, transform 0.5s ${i * 0.1}s ease`;
+    observer.observe(el);
+  });
+
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.style.boxShadow = window.scrollY > 40 ? '0 4px 40px rgba(0,0,0,0.4)' : 'none';
+  });
+</script>
+
+</body>
+</html>

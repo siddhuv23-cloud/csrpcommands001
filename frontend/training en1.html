@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State Training Portal — CS RP Commands Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  :root {
+    --bg: #050a14;
+    --surface: #0b1628;
+    --surface2: #0f1e36;
+    --accent: #00d4ff;
+    --train: #06b6d4;
+    --train-alt: #0ea5e9;
+    --train-dim: rgba(6,182,212,0.12);
+    --train-border: rgba(6,182,212,0.25);
+    --text: #e2eaf7;
+    --muted: #6a85aa;
+    --border: rgba(0,212,255,0.13);
+    --border-soft: rgba(255,255,255,0.05);
+    --cmd-bg: #060d1a;
+    --sidebar-w: 280px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+  /* Noise */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+  /* Scanlines */
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--train); border-radius: 3px; }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px;
+    background: rgba(5,10,20,0.9); backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+  .nav-links { display: flex; align-items: center; gap: 40px; }
+  .nav-links a { text-decoration: none; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; color: var(--muted); transition: color 0.3s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--train); }
+  .nav-links a.active::after { width: 100%; background: var(--train); }
+  .nav-cta { background: transparent !important; border: 1px solid var(--accent); color: var(--accent) !important; padding: 8px 20px; border-radius: 4px; transition: background 0.3s !important; }
+  .nav-cta:hover { background: rgba(0,212,255,0.1) !important; }
+  .nav-cta::after { display: none !important; }
+  .hamburger { display: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; }
+
+  /* ===== MOBILE OVERLAY ===== */
+  .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,20,0.98); backdrop-filter: blur(20px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+  .mobile-overlay.active { display: flex; }
+  .mobile-overlay a { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; color: var(--text); text-decoration: none; transition: color 0.3s; }
+  .mobile-overlay a:hover { color: var(--accent); }
+  .mobile-close { position: absolute; top: 24px; right: 24px; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+
+  /* ===== PAGE HERO ===== */
+  .page-hero {
+    position: relative; padding: 140px 48px 80px;
+    overflow: hidden; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 50vh;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(6,182,212,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6,182,212,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+  }
+  .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: pulse 6s ease-in-out infinite; pointer-events: none; }
+  .hero-orb-1 { width: 600px; height: 600px; top: -150px; left: -150px; background: rgba(6,182,212,0.07); }
+  .hero-orb-2 { width: 400px; height: 400px; bottom: -80px; right: -80px; background: rgba(14,165,233,0.06); animation-delay: 3s; }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.12); opacity: 1; } }
+
+  .page-hero-content { position: relative; z-index: 2; max-width: 780px; }
+
+  .breadcrumb { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 22px; animation: fadeUp 0.7s ease both; }
+  .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb .sep { color: rgba(255,255,255,0.12); }
+  .breadcrumb .current { color: var(--train); }
+
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--train-dim); border: 1px solid var(--train-border); border-radius: 100px; padding: 6px 18px; font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; letter-spacing: 2px; color: var(--train); margin-bottom: 24px; animation: fadeUp 0.7s 0.05s ease both; }
+  .hero-badge .dot { width: 6px; height: 6px; background: var(--train); border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.2; } }
+
+  .hero-emblem { position: relative; z-index: 2; margin-bottom: 28px; animation: fadeUp 0.7s ease both; display: flex; align-items: center; justify-content: center; }
+  .hero-emblem-inner { width: 110px; height: 110px; border-radius: 20px; border: 1px solid var(--train-border); background: var(--train-dim); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; box-shadow: 0 0 40px rgba(6,182,212,0.25); }
+
+  .page-hero h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5.5vw, 4rem); font-weight: 900; line-height: 1.05; letter-spacing: -1px; margin-bottom: 18px; animation: fadeUp 0.7s 0.1s ease both; }
+  .page-hero h1 .highlight { background: linear-gradient(135deg, var(--train), var(--train-alt)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .page-hero p { font-size: 1rem; color: var(--muted); max-width: 520px; margin: 0 auto 36px; line-height: 1.8; animation: fadeUp 0.7s 0.15s ease both; }
+
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.7s 0.2s ease both; }
+  .btn-back { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; padding: 13px 28px; border-radius: 6px; text-decoration: none; transition: all 0.3s; }
+  .btn-back:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--train); color: #020e14; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; padding: 13px 28px; border-radius: 6px; text-decoration: none; transition: all 0.3s; box-shadow: 0 0 30px rgba(6,182,212,0.35); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(6,182,212,0.55); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar { position: relative; z-index: 2; display: flex; justify-content: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(11,22,40,0.7); backdrop-filter: blur(12px); }
+  .stat-item { flex: 1; max-width: 200px; text-align: center; padding: 22px 16px; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 900; color: var(--train); display: block; }
+  .stat-label { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 3px; display: block; }
+
+  /* ===== LAYOUT ===== */
+  .page-layout { display: flex; position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 60px 48px 100px; gap: 36px; align-items: flex-start; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; position: sticky; top: 96px; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 16px; overflow: hidden; }
+  .sidebar-header { background: var(--train-dim); border-bottom: 1px solid var(--train-border); padding: 18px 20px; }
+  .sidebar-header h4 { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; color: var(--train); text-transform: uppercase; }
+  .sidebar-header p { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+  .sidebar-nav { padding: 12px 0; }
+  .sidebar-group-label { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; padding: 14px 20px 6px; border-top: 1px solid var(--border-soft); margin-top: 4px; }
+  .sidebar-group-label:first-child { border-top: none; margin-top: 0; }
+  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; text-decoration: none; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--muted); transition: all 0.25s; border-left: 2px solid transparent; }
+  .sidebar-link:hover, .sidebar-link.active { color: var(--train); background: var(--train-dim); border-left-color: var(--train); }
+  .sidebar-link i { font-size: 0.8rem; width: 14px; text-align: center; opacity: 0.7; }
+
+  /* tag pill on sidebar */
+  .sidebar-pill { font-family: 'Orbitron', sans-serif; font-size: 0.58rem; padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; margin-left: auto; flex-shrink: 0; }
+  .pill-fines   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+  .pill-impound { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+  .pill-arrest  { background: rgba(236,72,153,0.12); color: #ec4899; border: 1px solid rgba(236,72,153,0.2); }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content { flex: 1; min-width: 0; }
+
+  /* Info banner */
+  .info-banner {
+    display: flex; align-items: flex-start; gap: 16px;
+    background: var(--train-dim); border: 1px solid var(--train-border);
+    border-radius: 12px; padding: 18px 22px; margin-bottom: 32px;
+  }
+  .info-banner i { color: var(--train); font-size: 1.2rem; margin-top: 2px; flex-shrink: 0; }
+  .info-banner-text h4 { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--train); letter-spacing: 1px; margin-bottom: 5px; }
+  .info-banner-text p { font-size: 0.84rem; color: var(--muted); line-height: 1.7; }
+
+  /* ===== VIDEO CARDS ===== */
+  .video-card {
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px; overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    position: relative;
+  }
+  .video-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--card-color, var(--train));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.4s;
+  }
+  .video-card:hover { border-color: rgba(6,182,212,0.2); box-shadow: 0 12px 40px rgba(0,0,0,0.3); transform: translateY(-4px); }
+  .video-card:hover::before { transform: scaleX(1); }
+
+  .video-card-inner { padding: 28px 28px 24px; display: flex; gap: 24px; align-items: flex-start; }
+
+  /* thumbnail / icon side */
+  .video-thumb {
+    width: 120px; height: 80px; flex-shrink: 0;
+    border-radius: 10px; overflow: hidden;
+    background: var(--cmd-bg);
+    border: 1px solid var(--border-soft);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .video-thumb-fallback {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; opacity: 0.4;
+  }
+  /* play overlay */
+  .video-thumb-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .video-card:hover .video-thumb-overlay { opacity: 1; }
+  .video-thumb-overlay i { color: #fff; font-size: 1.6rem; }
+
+  /* content side */
+  .video-meta { flex: 1; min-width: 0; }
+  .video-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .video-tag {
+    font-family: 'Orbitron', sans-serif; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 2px; padding: 4px 12px; border-radius: 20px;
+    text-transform: uppercase; flex-shrink: 0;
+  }
+  .tag-fines   { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+  .tag-impound { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.2); }
+  .tag-arrest  { background: rgba(236,72,153,0.12); color: #ec4899; border: 1px solid rgba(236,72,153,0.2); }
+
+  .video-title { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: 0.3px; }
+  .video-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+
+  .video-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border-soft); }
+
+  .video-meta-info { display: flex; align-items: center; gap: 16px; }
+  .video-meta-chip { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .video-meta-chip i { font-size: 0.7rem; }
+
+  .watch-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--train); color: #020e14;
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.72rem;
+    letter-spacing: 2px; padding: 11px 24px; border-radius: 6px;
+    text-decoration: none; transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(6,182,212,0.25);
+    flex-shrink: 0;
+  }
+  .watch-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(6,182,212,0.5); }
+  .watch-btn i { font-size: 0.8rem; }
+
+  /* yt thumbnail helper */
+  .yt-thumb { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+
+  /* ===== CREDITS CARD ===== */
+  .credits-card {
+    margin-top: 8px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    border-radius: 16px; padding: 28px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .credits-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--train-dim); border: 1px solid var(--train-border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .credits-text h4 { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--train); letter-spacing: 1px; margin-bottom: 6px; }
+  .credits-text p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+  .credits-text strong { color: #fbbf24; }
+
+  /* ===== DIVIDER ===== */
+  .divider { max-width: 1400px; margin: 0 auto; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+
+  /* ===== CTA ===== */
+  .cta-section { padding: 80px 48px; position: relative; z-index: 1; overflow: hidden; }
+  .cta-inner { max-width: 800px; margin: 0 auto; background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(14,165,233,0.04)); border: 1px solid var(--train-border); border-radius: 24px; padding: 64px 48px; text-align: center; position: relative; overflow: hidden; }
+  .cta-inner::before { content: ''; position: absolute; top: -40%; left: 50%; transform: translateX(-50%); width: 400px; height: 400px; background: radial-gradient(circle, rgba(6,182,212,0.1), transparent 70%); pointer-events: none; }
+  .cta-glyph { font-family: 'Orbitron', sans-serif; font-size: 4rem; color: rgba(6,182,212,0.05); position: absolute; bottom: 16px; right: 28px; pointer-events: none; user-select: none; }
+  .cta-inner h2 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 900; color: var(--text); margin-bottom: 14px; position: relative; z-index: 1; }
+  .cta-inner p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 480px; margin: 0 auto 36px; position: relative; z-index: 1; }
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .btn-discord { display: inline-flex; align-items: center; gap: 10px; background: #5865F2; color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; padding: 14px 32px; border-radius: 6px; text-decoration: none; transition: all 0.3s; box-shadow: 0 0 28px rgba(88,101,242,0.4); }
+  .btn-discord:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(88,101,242,0.6); }
+  .btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.88rem; letter-spacing: 2px; padding: 14px 32px; border-radius: 6px; text-decoration: none; transition: all 0.3s; }
+  .btn-outline:hover { border-color: var(--train); color: var(--train); transform: translateY(-2px); }
+
+  /* ===== FOOTER ===== */
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--border); background: rgba(5,10,20,0.85); padding: 56px 48px 36px; }
+  .footer-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; flex-wrap: wrap; }
+  .footer-brand p { color: var(--muted); font-size: 0.84rem; line-height: 1.7; max-width: 260px; }
+  .footer-socials { display: flex; gap: 10px; margin-top: 20px; }
+  .social-btn { width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: all 0.3s; }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .footer-links h4 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 2px; color: var(--train); text-transform: uppercase; margin-bottom: 18px; }
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .footer-links ul li a { text-decoration: none; color: var(--muted); font-size: 0.86rem; transition: color 0.3s; }
+  .footer-links ul li a:hover { color: var(--text); }
+  .footer-bottom { max-width: 1400px; margin: 36px auto 0; padding-top: 22px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom p { color: var(--muted); font-size: 0.8rem; }
+  .footer-bottom a { color: var(--accent); text-decoration: none; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) { .page-layout { flex-direction: column; padding: 40px 24px 80px; } .sidebar { width: 100%; position: static; } }
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; } .nav-links { display: none; } .hamburger { display: block; }
+    .page-hero { padding: 120px 24px 60px; } .cta-section { padding: 60px 24px; } .cta-inner { padding: 40px 20px; }
+    footer { padding: 44px 24px 28px; } .footer-inner { flex-direction: column; gap: 36px; } .footer-bottom { flex-direction: column; text-align: center; }
+    .stats-bar { flex-wrap: wrap; } .stat-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+    .video-card-inner { flex-direction: column; gap: 16px; }
+    .video-thumb { width: 100%; height: 160px; }
+    .video-footer { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .watch-btn { width: 100%; justify-content: center; }
+    .credits-card { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.png" alt="CS RP" style="height:42px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="rpzone.html" class="active">RP ZONE</a>
+    <a href="https://discord.gg/MmtqhsJJPF" class="nav-cta">DISCORD</a>
+  </div>
+  <i class="fa fa-bars hamburger" onclick="openMenu()"></i>
+</nav>
+
+<div class="mobile-overlay" id="mobileOverlay">
+  <i class="fa fa-close mobile-close" onclick="closeMenu()"></i>
+  <a href="index.html" onclick="closeMenu()">HOME</a>
+  <a href="about.html" onclick="closeMenu()">ABOUT</a>
+  <a href="rpzone.html" onclick="closeMenu()">RP ZONE</a>
+  <a href="https://discord.gg/MmtqhsJJPF" onclick="closeMenu()">DISCORD</a>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<section class="page-hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="page-hero-content">
+    <div class="breadcrumb">
+      <a href="index.html">HOME</a><span class="sep">/</span>
+      <a href="rpzone.html">RP ZONE</a><span class="sep">/</span>
+      <a href="en%201%20main.html">GRAND EN:1</a><span class="sep">/</span>
+      <span class="current">TRAINING PORTAL</span>
+    </div>
+    <div class="hero-emblem">
+      <div class="hero-emblem-inner">🎓</div>
+    </div>
+    <div class="hero-badge"><span class="dot"></span>STATE TRAINING — EN:1 BEGINNER GUIDE</div>
+    <h1>State <span class="highlight">Training</span> Portal</h1>
+    <p>Beginner training videos for all EN:1 state procedures. Watch step-by-step tutorials on fines, towing, and arrests before going on duty.</p>
+    <div class="hero-actions">
+      <a href="en%201%20main.html" class="btn-back"><i class="fa fa-arrow-left"></i> Back to EN:1</a>
+      <a href="#s-videos" class="btn-primary"><i class="fa fa-play-circle"></i> Browse Videos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Tutorial Videos</span></div>
+  <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Procedures</span></div>
+  <div class="stat-item"><span class="stat-num">YT</span><span class="stat-label">YouTube Links</span></div>
+  <div class="stat-item"><span class="stat-num">EN:1</span><span class="stat-label">Server</span></div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h4>Training Index</h4>
+      <p>Jump to a tutorial</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-group-label">Video Tutorials</div>
+      <a href="#s-fines"   class="sidebar-link"><i class="fa fa-money"></i> Fine Procedure <span class="sidebar-pill pill-fines">FINES</span></a>
+      <a href="#s-towing"  class="sidebar-link"><i class="fa fa-truck"></i> Towing Procedure <span class="sidebar-pill pill-impound">IMPOUND</span></a>
+      <a href="#s-arrest"  class="sidebar-link"><i class="fa fa-lock"></i> Arrest Procedure <span class="sidebar-pill pill-arrest">ARREST</span></a>
+      <div class="sidebar-group-label">Related Pages</div>
+      <a href="arresting%20en1.html" class="sidebar-link"><i class="fa fa-file-text-o"></i> Arrest Guide</a>
+      <a href="en%201%20main.html"   class="sidebar-link"><i class="fa fa-th-large"></i> EN:1 Overview</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="s-videos">
+
+    <!-- Info banner -->
+    <div class="info-banner">
+      <i class="fa fa-graduation-cap"></i>
+      <div class="info-banner-text">
+        <h4>Beginner Training Required</h4>
+        <p>All new EN:1 state officers should complete these video tutorials before their first active duty shift. Each video covers official Grand RP procedures used across all organizations.</p>
+      </div>
+    </div>
+
+    <!-- ── VIDEO 1: FINE PROCEDURE ── -->
+    <div class="video-card" id="s-fines" style="--card-color: #fbbf24;">
+      <div class="video-card-inner">
+        <div class="video-thumb">
+          <img
+            src="https://img.youtube.com/vi/GZyBp28GcvE/mqdefault.jpg"
+            alt="Fine Procedure Thumbnail"
+            class="yt-thumb"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="video-thumb-fallback" style="display:none;">📹</div>
+          <div class="video-thumb-overlay"><i class="fa fa-play-circle"></i></div>
+        </div>
+        <div class="video-meta">
+          <div class="video-top">
+            <h3 class="video-title">Fine Procedure</h3>
+            <span class="video-tag tag-fines">Fines</span>
+          </div>
+          <p class="video-desc">Learn how to properly issue, calculate, and log fines for violations. Covers the correct RP commands, PDA usage, and documentation required by all state officers.</p>
+          <div class="video-footer">
+            <div class="video-meta-info">
+              <span class="video-meta-chip"><i class="fa fa-youtube-play"></i> YouTube</span>
+              <span class="video-meta-chip"><i class="fa fa-tag"></i> Beginner</span>
+            </div>
+            <a href="https://www.youtube.com/watch?v=GZyBp28GcvE" target="_blank" class="watch-btn">
+              <i class="fa fa-play"></i> WATCH NOW
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIDEO 2: TOWING PROCEDURE ── -->
+    <div class="video-card" id="s-towing" style="--card-color: #f97316;">
+      <div class="video-card-inner">
+        <div class="video-thumb">
+          <img
+            src="https://img.youtube.com/vi/CB1i308QTrc/mqdefault.jpg"
+            alt="Towing Procedure Thumbnail"
+            class="yt-thumb"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="video-thumb-fallback" style="display:none;">📹</div>
+          <div class="video-thumb-overlay"><i class="fa fa-play-circle"></i></div>
+        </div>
+        <div class="video-meta">
+          <div class="video-top">
+            <h3 class="video-title">Towing Procedure</h3>
+            <span class="video-tag tag-impound">Impound</span>
+          </div>
+          <p class="video-desc">Understand when and how to legally tow and impound vehicles. Covers proper impound commands, documentation, suspect notification, and vehicle release procedures.</p>
+          <div class="video-footer">
+            <div class="video-meta-info">
+              <span class="video-meta-chip"><i class="fa fa-youtube-play"></i> YouTube</span>
+              <span class="video-meta-chip"><i class="fa fa-tag"></i> Beginner</span>
+            </div>
+            <a href="https://www.youtube.com/watch?v=CB1i308QTrc" target="_blank" class="watch-btn">
+              <i class="fa fa-play"></i> WATCH NOW
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIDEO 3: ARREST PROCEDURE ── -->
+    <div class="video-card" id="s-arrest" style="--card-color: #ec4899;">
+      <div class="video-card-inner">
+        <div class="video-thumb">
+          <img
+            src="https://img.youtube.com/vi/BmRTNnWVkao/mqdefault.jpg"
+            alt="Arrest Procedure Thumbnail"
+            class="yt-thumb"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="video-thumb-fallback" style="display:none;">📹</div>
+          <div class="video-thumb-overlay"><i class="fa fa-play-circle"></i></div>
+        </div>
+        <div class="video-meta">
+          <div class="video-top">
+            <h3 class="video-title">Arrest Procedure</h3>
+            <span class="video-tag tag-arrest">Arrest</span>
+          </div>
+          <p class="video-desc">Full tutorial on how to correctly arrest suspects. Covers handcuffing, Miranda rights, transport to DOC, processing, and final dispatch confirmation across all EN:1 departments.</p>
+          <div class="video-footer">
+            <div class="video-meta-info">
+              <span class="video-meta-chip"><i class="fa fa-youtube-play"></i> YouTube</span>
+              <span class="video-meta-chip"><i class="fa fa-tag"></i> Beginner</span>
+            </div>
+            <a href="https://www.youtube.com/watch?v=BmRTNnWVkao" target="_blank" class="watch-btn">
+              <i class="fa fa-play"></i> WATCH NOW
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credits -->
+    <div class="credits-card">
+      <div class="credits-icon">🎥</div>
+      <div class="credits-text">
+        <h4>Video Credits</h4>
+        <p>All credits belong to the original video creators.<br>
+        Portal maintained by <strong>Satish Royal Player</strong> — EN:1, EN:2, EN:3</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glyph">{ }</div>
+    <h2>Ready to Go On Duty?</h2>
+    <p>After completing all training videos, check the full Arrest Procedure guide or join the Discord for any questions before your first shift.</p>
+    <div class="cta-btns">
+      <a href="arresting%20en1.html" class="btn-primary" style="padding:14px 32px;">
+        <i class="fa fa-file-text-o"></i> ARREST GUIDE
+      </a>
+      <a href="https://discord.gg/MmtqhsJJPF" class="btn-discord">
+        <i class="fa fa-comments"></i> JOIN DISCORD
+      </a>
+      <a href="en%201%20main.html" class="btn-outline">
+        <i class="fa fa-arrow-left"></i> BACK TO EN:1
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== */
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="images/logo.png" alt="CS RP Commands Zone" style="height:38px;width:auto;object-fit:contain;margin-bottom:12px;display:block;" onerror="this.style.display='none'">
+      <p>Your definitive resource for Grand RP commands, organization guides, and roleplay rules. Built by players, for players.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fa fa-facebook"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-linkedin"></i></a>
+        <a href="https://www.youtube.com/@satishch2187" class="social-btn"><i class="fa fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="rpzone.html">RP Zone</a></li>
+        <li><a href="en%201%20main.html">Grand EN:1</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Training Videos</h4>
+      <ul>
+        <li><a href="https://www.youtube.com/watch?v=GZyBp28GcvE" target="_blank">Fine Procedure</a></li>
+        <li><a href="https://www.youtube.com/watch?v=CB1i308QTrc" target="_blank">Towing Procedure</a></li>
+        <li><a href="https://www.youtube.com/watch?v=BmRTNnWVkao" target="_blank">Arrest Procedure</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://discord.gg/MmtqhsJJPF">Discord</a></li>
+        <li><a href="https://gta5grand.com/?ref=75647">Grand RP</a></li>
+        <li><a href="https://www.youtube.com/@satishch2187">YouTube</a></li>
+        <li><a href="https://gta5grand.com/forum/en/">EN:1 Forum</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 CS RP Commands Zone. All rights reserved.</p>
+    <p>Made with <i class="fa fa-heart" style="color:var(--train)"></i> by <a href="https://www.youtube.com/@satishch2187">Satish Royal Player</a> — EN:1, EN:2, EN:3</p>
+  </div>
+</footer>
+
+<script>
+  /* ── NAV ── */
+  function openMenu() { document.getElementById('mobileOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
+  function closeMenu() { document.getElementById('mobileOverlay').classList.remove('active'); document.body.style.overflow=''; }
+
+  /* ── SIDEBAR ACTIVE ── */
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar-link[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4, rootMargin: '-80px 0px -50% 0px' });
+
+  document.querySelectorAll('.video-card[id]').forEach(el => io.observe(el));
+
+  /* ── NAVBAR SCROLL SHADOW ── */
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.boxShadow = window.scrollY > 40 ? '0 4px 40px rgba(0,0,0,0.5)' : 'none';
+  });
+
+  /* ── SCROLL REVEAL ── */
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0) scale(1)'; } });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('.video-card, .credits-card, .info-banner').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px) scale(0.99)';
+    el.style.transition = `opacity 0.55s ${i * 0.08}s ease, transform 0.55s ${i * 0.08}s ease`;
+    revealObs.observe(el);
+  });
+</script>
+</body>
+</html>

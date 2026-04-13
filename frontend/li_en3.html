@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeInvader · EN3 Ad Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ───── VARIABLES ───── */
+:root {
+  --red: #e8192c;
+  --red2: #ff3347;
+  --red-dim: rgba(232,25,44,.15);
+  --red-glow: rgba(232,25,44,.4);
+  --gold: #f5c518;
+  --gold-dim: rgba(245,197,24,.12);
+  --green: #00e676;
+  --green-dim: rgba(0,230,118,.1);
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,.08);
+  --bg: #080a0e;
+  --bg1: #0d1018;
+  --bg2: #111520;
+  --bg3: #161b2a;
+  --bg4: #1c2236;
+  --surface: #1a1f30;
+  --surface2: #222840;
+  --border: #2a3050;
+  --border2: #364070;
+  --txt: #d8dff0;
+  --txt2: #8892b0;
+  --txt3: #4a5580;
+  --white: #f0f4ff;
+}
+
+/* ───── RESET ───── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ───── SCANLINE OVERLAY ───── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ───── ANIMATED BG ───── */
+.bg-gfx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-gfx::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(ellipse, rgba(232,25,44,.06) 0%, transparent 70%);
+  animation: pulse1 8s ease-in-out infinite;
+}
+.bg-gfx::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(ellipse, rgba(0,212,255,.04) 0%, transparent 70%);
+  animation: pulse2 10s ease-in-out infinite;
+}
+@keyframes pulse1 { 0%,100%{transform:scale(1) translate(0,0)} 50%{transform:scale(1.1) translate(2%,3%)} }
+@keyframes pulse2 { 0%,100%{transform:scale(1) translate(0,0)} 50%{transform:scale(1.08) translate(-2%,-2%)} }
+
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(42,48,80,.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42,48,80,.25) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ───── LAYOUT ───── */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+/* ───── HEADER ───── */
+.header {
+  padding: 18px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--red), transparent);
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.logo-icon {
+  width: 46px;
+  height: 46px;
+  background: var(--red);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 18px;
+  color: white;
+  box-shadow: 0 0 20px var(--red-glow), inset 0 1px 0 rgba(255,255,255,.2);
+  flex-shrink: 0;
+  letter-spacing: -1px;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+.logo-main {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--white);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.logo-main em { color: var(--red); font-style: normal; }
+.logo-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  color: var(--txt3);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.hbadge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.hb-red { color: var(--red2); border-color: rgba(232,25,44,.4); background: var(--red-dim); }
+.hb-gold { color: var(--gold); border-color: rgba(245,197,24,.3); background: var(--gold-dim); }
+.hb-cyan { color: var(--cyan); border-color: rgba(0,212,255,.25); background: var(--cyan-dim); }
+
+.header-right {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  color: var(--txt3);
+  text-align: right;
+  letter-spacing: 1px;
+}
+.header-right span { display: block; color: var(--txt2); }
+
+/* ───── MAIN GRID ───── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+@media(max-width:1000px) { .main-grid { grid-template-columns: 1fr; } }
+
+/* ───── PANELS ───── */
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), transparent 60%);
+}
+
+.panel-head {
+  background: var(--bg3);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ph-icon {
+  width: 28px; height: 28px;
+  background: var(--red-dim);
+  border: 1px solid rgba(232,25,44,.3);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.ph-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--txt);
+}
+.ph-sub {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-left: auto;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+}
+
+.panel-body { padding: 20px; }
+
+/* ───── AD TYPE SELECTOR ───── */
+.ad-type-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+@media(max-width:700px) { .ad-type-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.at-btn {
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--txt2);
+  text-align: center;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.at-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.03));
+}
+.at-btn:hover { border-color: var(--red); color: var(--txt); background: var(--bg3); }
+.at-btn.active {
+  border-color: var(--red);
+  background: var(--red-dim);
+  color: var(--red2);
+  box-shadow: 0 0 12px var(--red-dim), inset 0 0 8px var(--red-dim);
+}
+.at-btn .at-icon { font-size: 16px; display: block; margin-bottom: 4px; }
+.at-btn .at-label { font-size: 10px; }
+
+/* ───── CATEGORY TABS ───── */
+.cat-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cat-tab {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--txt2);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all .15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.cat-tab:hover { border-color: var(--border2); color: var(--txt); }
+.cat-tab.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+  box-shadow: 0 4px 14px var(--red-glow);
+}
+
+/* ───── FORM ELEMENTS ───── */
+.form-section { margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media(max-width:600px) { .form-grid, .form-grid-3 { grid-template-columns: 1fr; } }
+.form-row { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.field-label .req { color: var(--red); font-size: 13px; }
+
+.field-hint { font-size: 11px; color: var(--txt3); line-height: 1.5; margin-top: 3px; }
+.field-hint.warn { color: #f5a050; }
+.field-hint.ok { color: var(--green); }
+.field-hint.bad { color: var(--red2); }
+
+select, input[type=text], input[type=number], textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--txt);
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 13px;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%234a5580' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
+option { background: #1c2236; }
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(232,25,44,.15);
+}
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+/* ───── TOGGLE SWITCHES (radio-style) ───── */
+.toggle-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle-btn {
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg3);
+  color: var(--txt2);
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all .15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.toggle-btn:hover { border-color: var(--border2); color: var(--txt); }
+.toggle-btn.active {
+  background: linear-gradient(135deg, rgba(232,25,44,.25), rgba(232,25,44,.1));
+  border-color: rgba(232,25,44,.6);
+  color: var(--red2);
+}
+
+/* ───── CHECKBOXES ───── */
+.check-group { display: flex; flex-wrap: wrap; gap: 7px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg3);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: .5px;
+  transition: all .15s;
+  user-select: none;
+  color: var(--txt2);
+}
+.check-item:hover { border-color: var(--border2); color: var(--txt); }
+.check-item.checked { border-color: rgba(232,25,44,.5); background: var(--red-dim); color: var(--txt); }
+.check-item input[type=checkbox] {
+  width: 14px; height: 14px;
+  accent-color: var(--red);
+  cursor: pointer;
+  flex-shrink: 0;
+  border: none; background: none; padding: 0;
+}
+
+/* ───── FEATURE CHIPS ───── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg3);
+  color: var(--txt3);
+  font-size: 11px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: .5px;
+  cursor: pointer;
+  user-select: none;
+  transition: all .12s;
+}
+.chip:hover { border-color: var(--border2); color: var(--txt2); }
+.chip.on {
+  background: var(--red-dim);
+  border-color: rgba(232,25,44,.5);
+  color: var(--red2);
+}
+
+/* ───── VEHICLE SEARCH ───── */
+.v-wrap { position: relative; }
+.v-drop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  max-height: 210px;
+  overflow-y: auto;
+  z-index: 200;
+  display: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+.v-drop.open { display: block; }
+.v-opt {
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--txt);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .1s;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  font-family: 'Exo 2', sans-serif;
+}
+.v-opt:last-child { border-bottom: none; }
+.v-opt:hover { background: var(--surface2); }
+.v-tag {
+  font-size: 9px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.v-tag.sell { background: rgba(0,230,118,.12); color: var(--green); }
+.v-tag.nosell { background: rgba(245,197,24,.12); color: var(--gold); }
+
+/* ───── SECTION DIVIDER ───── */
+.sec-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 10px;
+}
+.sec-label::before { content: ''; display: block; width: 3px; height: 14px; background: var(--red); border-radius: 2px; }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+hr.div { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ───── INFO BOXES ───── */
+.info-box {
+  border-radius: 7px;
+  padding: 11px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+.ib-default { background: var(--bg4); border: 1px solid var(--border); color: var(--txt2); }
+.ib-warn { background: rgba(245,160,80,.08); border: 1px solid rgba(245,160,80,.25); border-left: 3px solid #f5a050; color: #f5c080; }
+.ib-red { background: var(--red-dim); border: 1px solid rgba(232,25,44,.3); border-left: 3px solid var(--red); color: #f09090; }
+.ib-green { background: var(--green-dim); border: 1px solid rgba(0,230,118,.2); border-left: 3px solid var(--green); color: #80e8b0; }
+.ib-gold { background: var(--gold-dim); border: 1px solid rgba(245,197,24,.2); border-left: 3px solid var(--gold); color: #e8c860; }
+
+/* ───── WARNING BOX ───── */
+.warn-banner {
+  display: none;
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 11px 16px;
+  color: var(--red2);
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: .5px;
+  margin-bottom: 12px;
+  gap: 10px;
+  align-items: center;
+}
+.warn-banner.show { display: flex; }
+
+/* ───── GENERATE BUTTON ───── */
+.btn-generate {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #c8151f, var(--red));
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(232,25,44,.3);
+}
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  transition: left .4s;
+}
+.btn-generate:hover::before { left: 100%; }
+.btn-generate:hover {
+  background: linear-gradient(135deg, var(--red), #ff3347);
+  box-shadow: 0 6px 28px rgba(232,25,44,.5);
+  transform: translateY(-1px);
+}
+.btn-generate:active { transform: translateY(0); }
+
+/* ───── PREVIEW PANEL ───── */
+.preview-sticky { position: sticky; top: 20px; }
+
+.ad-output-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+}
+.ad-output-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), var(--gold), transparent);
+}
+
+.ad-output-header {
+  background: var(--bg3);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.ao-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+.ao-status {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--txt3);
+}
+
+.ad-output-text {
+  padding: 20px;
+  min-height: 140px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #c8d8ff;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 400;
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+}
+.ad-output-text.empty {
+  color: var(--txt3);
+  font-style: italic;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* blinking cursor */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background: var(--red);
+  margin-left: 3px;
+  vertical-align: middle;
+  animation: blink .8s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.btn-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--txt);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all .15s;
+  width: 100%;
+  justify-content: center;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.btn-copy:hover { background: var(--surface2); border-color: var(--red); color: var(--red2); }
+.btn-copy.done { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+/* ───── POLICY QUICK REF ───── */
+.policy-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.policy-head {
+  background: var(--bg3);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.policy-list {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.policy-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  font-size: 11px;
+  color: var(--txt2);
+  line-height: 1.5;
+}
+.policy-item:last-child { border-bottom: none; }
+.policy-item::before { content: '›'; color: var(--red); flex-shrink: 0; font-size: 14px; }
+.policy-item .conv { color: var(--txt3); }
+.policy-item .conv::after { content: ' → '; color: var(--txt3); }
+.policy-item .result { color: var(--gold); }
+
+/* ───── SCROLLBAR ───── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
+
+/* ───── VEHICLE STATUS BAR ───── */
+.v-status {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+.v-status.show { display: flex; }
+.v-status.sell { background: var(--green-dim); border: 1px solid rgba(0,230,118,.2); color: var(--green); }
+.v-status.nosell { background: var(--gold-dim); border: 1px solid rgba(245,197,24,.25); color: var(--gold); }
+.v-status.unknown { background: var(--bg4); border: 1px solid var(--border); color: var(--txt3); }
+
+/* ───── ANIMATIONS ───── */
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.panel { animation: fadeIn .3s ease; }
+
+/* ───── CONSTRUCTION SITE VISUAL ───── */
+.site-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.site-card {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg3);
+  cursor: pointer;
+  text-align: center;
+  transition: all .15s;
+  user-select: none;
+}
+.site-card:hover { border-color: var(--border2); }
+.site-card.active { border-color: rgba(232,25,44,.5); background: var(--red-dim); }
+.site-card .sc-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--red);
+  display: block;
+}
+.site-card .sc-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt2);
+  margin-top: 3px;
+}
+.site-card.active .sc-name { color: var(--red2); }
+
+/* ───── PAY MODE CARDS ───── */
+.pay-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.pay-card {
+  padding: 10px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg3);
+  cursor: pointer;
+  text-align: center;
+  transition: all .15s;
+  user-select: none;
+}
+.pay-card:hover { border-color: var(--border2); }
+.pay-card.active { border-color: rgba(232,25,44,.5); background: var(--red-dim); }
+.pay-card .pc-ico { font-size: 18px; display: block; margin-bottom: 4px; }
+.pay-card .pc-lbl { font-family: 'Rajdhani', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .5px; color: var(--txt2); text-transform: uppercase; }
+.pay-card.active .pc-lbl { color: var(--red2); }
+
+/* ───── CHAR COUNT ───── */
+.ad-char-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--txt3);
+  text-align: right;
+  padding: 4px 16px 8px;
+}
+
+/* ───── MOBILE ───── */
+@media(max-width:600px) {
+  .ad-type-grid { grid-template-columns: repeat(3, 1fr); }
+  .site-cards { grid-template-columns: 1fr; }
+  .pay-cards { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="bg-gfx"></div>
+<div class="grid-lines"></div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-block">
+      <!-- LifeInvader SVG Logo -->
+      <svg width="148" height="48" viewBox="0 0 148 48" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 0 10px rgba(232,25,44,0.5)) drop-shadow(0 2px 8px rgba(0,0,0,0.7))">
+        <defs>
+          <linearGradient id="liRed" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#e8322a"/>
+            <stop offset="100%" stop-color="#b81f18"/>
+          </linearGradient>
+          <linearGradient id="liShine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.2)"/>
+            <stop offset="55%" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+        <rect x="1" y="1" width="146" height="46" rx="9" ry="9" fill="url(#liRed)" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
+        <rect x="1" y="1" width="146" height="23" rx="9" ry="9" fill="url(#liShine)"/>
+        <text x="11" y="33" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="25" fill="white" letter-spacing="-0.5">Life</text>
+        <text x="64" y="33" font-family="Arial,sans-serif" font-weight="400" font-size="25" fill="white" letter-spacing="-0.3">invader</text>
+      </svg>
+      <div class="logo-text">
+        <div class="logo-sub" style="margin-top:0">EN3 · Grand RP · RAGE:MP</div>
+      </div>
+    </div>
+    <div class="header-center">
+      <span class="hbadge hb-red">⚔ No Illegal Items</span>
+      <span class="hbadge hb-gold">📋 Policy v27-02-2026</span>
+      <span class="hbadge hb-cyan">🚗 Full Vehicle DB</span>
+    </div>
+    <div class="header-right">
+      <span>EN3 AD GENERATOR</span>
+      SERVER: GRAND RP
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- ═══ LEFT COLUMN ═══ -->
+    <div id="leftCol">
+
+      <!-- STEP 1: AD TYPE -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-icon">📢</div>
+          <div class="ph-title">Step 1 — Ad Type</div>
+          <div class="ph-sub">What are you doing?</div>
+        </div>
+        <div class="panel-body">
+          <div class="ad-type-grid" id="adTypeGrid">
+            <div class="at-btn active" data-v="selling"><span class="at-icon">💰</span><span class="at-label">Selling</span></div>
+            <div class="at-btn" data-v="buying"><span class="at-icon">🛒</span><span class="at-label">Buying</span></div>
+            <div class="at-btn" data-v="trading"><span class="at-icon">🔄</span><span class="at-label">Trading</span></div>
+            <div class="at-btn" data-v="selling_or_trading"><span class="at-icon">💱</span><span class="at-label">Sell / Trade</span></div>
+            <div class="at-btn" data-v="renting_out"><span class="at-icon">🏷️</span><span class="at-label">Renting Out</span></div>
+            <div class="at-btn" data-v="renting"><span class="at-icon">🔑</span><span class="at-label">Renting</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: CATEGORY -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-icon">🗂</div>
+          <div class="ph-title">Step 2 — Category</div>
+          <div class="ph-sub">Select ad category</div>
+        </div>
+        <div class="panel-body">
+          <div class="cat-tabs" id="catTabs">
+            <div class="cat-tab active" data-v="auto">🚗 Auto</div>
+            <div class="cat-tab" data-v="realestate">🏠 Real Estate</div>
+            <div class="cat-tab" data-v="business">🏢 Business</div>
+            <div class="cat-tab" data-v="other">📦 Other</div>
+            <div class="cat-tab" data-v="work">💼 Work</div>
+            <div class="cat-tab" data-v="dating">❤️ Dating</div>
+            <div class="cat-tab" data-v="services">✨ Services</div>
+            <div class="cat-tab" data-v="discounts">🏷️ Discounts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: DETAILS (dynamic) -->
+      <div class="panel" id="detailsPanel">
+        <div class="panel-head">
+          <div class="ph-icon" id="detailIcon">⚙️</div>
+          <div class="ph-title" id="detailTitle">Step 3 — Vehicle Details</div>
+        </div>
+        <div class="panel-body" id="detailBody"></div>
+      </div>
+
+      <!-- STEP 4: PRICE -->
+      <div class="panel" id="pricePanel">
+        <div class="panel-head">
+          <div class="ph-icon">💵</div>
+          <div class="ph-title" id="pricePanelTitle">Step 4 — Price</div>
+          <div class="ph-sub" id="pricePanelSub">Selling price</div>
+        </div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="form-row">
+              <label class="field-label"><span id="priceAmtLbl">Price</span> Amount</label>
+              <input type="text" id="amtInput" placeholder="e.g. 1500000 · 2.5 Million · 10 Million">
+              <div class="field-hint">Full numbers only — no "k" or "m" shorthand<br>$1.500 · $2.5 Million · $10 Million</div>
+            </div>
+            <div class="form-row" style="justify-content:center;padding-top:4px">
+              <label class="check-item" id="negLabel">
+                <input type="checkbox" id="negCheck"> Negotiable (overrides amount)
+              </label>
+              <div class="field-hint" style="margin-top:8px">If no amount → auto Negotiable</div>
+            </div>
+          </div>
+          <div id="rentPeriodSection" style="display:none;margin-top:14px">
+            <div class="form-row">
+              <label class="field-label">⚠ Rental Period <span class="req">*</span></label>
+              <select id="rentPeriodSel">
+                <option value="">— select period (required when amount given) —</option>
+                <option value="per week">Per week</option>
+                <option value="for 3 days">For 3 days</option>
+                <option value="for 7 days">For 7 days</option>
+                <option value="for 14 days">For 14 days</option>
+                <option value="for 21 days">For 21 days</option>
+              </select>
+              <div class="field-hint warn">Required when a rent amount is specified — otherwise ad will be rejected.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GENERATE -->
+      <div id="warnBanner" class="warn-banner">⚠ <span id="warnMsg"></span></div>
+      <button class="btn-generate" id="genBtn">⚡ GENERATE AD</button>
+
+    </div><!-- end left -->
+
+    <!-- ═══ RIGHT COLUMN ═══ -->
+    <div class="preview-sticky">
+
+      <!-- OUTPUT -->
+      <div class="ad-output-wrap">
+        <div class="ad-output-header">
+          <div class="ao-label">📄 Ad Output</div>
+          <div class="ao-status" id="adStatus">READY</div>
+        </div>
+        <div class="ad-output-text empty" id="adOutput">
+          Click GENERATE to build your EN3-compliant ad…
+        </div>
+        <div class="ad-char-count" id="charCount"></div>
+      </div>
+
+      <button class="btn-copy" id="copyBtn">📋 Copy to Clipboard</button>
+
+      <!-- POLICY QUICK REF -->
+      <div class="policy-box">
+        <div class="policy-head">⚖ EN3 Policy — Quick Reference</div>
+        <div class="policy-list" id="policyList">
+          <div class="policy-item">Always starts with Buying / Selling / Trading / Renting out…</div>
+          <div class="policy-item">$ before amount · period separator: $1.500 · $2.5 Million</div>
+          <div class="policy-item">No "k" or "M" — write full numbers only</div>
+          <div class="policy-item">Vehicle names always in "quotes"</div>
+          <div class="policy-item">Max 1 vehicle per Auto ad (except trading)</div>
+          <div class="policy-item">Max 3 items in Other category</div>
+          <div class="policy-item">Houses / apartments NOT tradable</div>
+          <div class="policy-item">Business ↔ Business · Vehicle ↔ Vehicle only</div>
+          <div class="policy-item"><span class="conv">Drug lab</span><span class="result">Burger shop</span></div>
+          <div class="policy-item"><span class="conv">Barber</span><span class="result">Hair salon</span></div>
+          <div class="policy-item"><span class="conv">Strip club</span><span class="result">Bar</span></div>
+          <div class="policy-item"><span class="conv">Gun/weapon store</span><span class="result">Ammunition Store</span></div>
+          <div class="policy-item"><span class="conv">Charging station</span><span class="result">Electric station</span></div>
+          <div class="policy-item"><span class="conv">Auto workshop</span><span class="result">Service station</span></div>
+          <div class="policy-item"><span class="conv">Max config / fully upgraded</span><span class="result">full configuration</span></div>
+          <div class="policy-item"><span class="conv">Body kit / body upgrades</span><span class="result">visual upgrades</span></div>
+          <div class="policy-item"><span class="conv">Turbo</span><span class="result">turbo kit</span></div>
+          <div class="policy-item"><span class="conv">Drift tuning</span><span class="result">drift kit</span></div>
+          <div class="policy-item"><span class="conv">Extras / type number</span><span class="result">of type N</span></div>
+          <div class="policy-item"><span class="conv">Crates / cases</span><span class="result">containers</span></div>
+          <div class="policy-item"><span class="conv">Spray cans</span><span class="result">paint cans</span></div>
+          <div class="policy-item"><span class="conv">Graphic card</span><span class="result">video card</span></div>
+          <div class="policy-item"><span class="conv">Level (Work)</span><span class="result">years of experience</span></div>
+          <div class="policy-item"><span class="conv">Exotic dancers</span><span class="result">professional dancer</span></div>
+          <div class="policy-item">Price over $300M → Negotiable (Business)</div>
+          <div class="policy-item">No period if ad ends with a number</div>
+          <div class="policy-item">Apartments CANNOT be insured</div>
+          <div class="policy-item">NOT SELLABLE cars → rent only</div>
+        </div>
+      </div>
+
+    </div><!-- end right -->
+  </div>
+</div><!-- end wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const SELL_VEHICLES = ["Adder","Alpha","Annis ZR-350","Annis 350Z","Annis Silvia (S15)","Annis Skyline GT-R (R34)","Annis GT-R I","Annis RX-7 (FD)","Annis RX-7 (Veilside Fortune)","Annis WRX 2004","Apocalypse Impaler","Apocalypse Imperator","Apocalypse Issi","Apocalypse Slamvan","Ardent","Asbo","Asea","Asterope","Autarch","Albany Escalade","Baller","Baller LE LWB","Baller SG","Banshee","Banshee 900R","Beater Emperor","Beater Mariachi Tornado","Beater Surfer","Beater Tornado","Benefactor-MG C63 (W205)","Benefactor-MG C63 Coupe (W205)","Benefactor-MG G63 (G770)","Benefactor-MG S63 (W222)","Benefactor-MG VT Black Series","Benefactor-Benz 600SEL (W140)","Benefactor-Benz E420 (W210)","Benefactor-Benz Vito (V447)","Benefactor-Maybach Pullman","Bestia GTS","BF Injection","Bison","Blade","Blista","Blista Kanjo","Bodhi","Brawler","Bravado Charger SRT","Bravado Charger 1969","Bravado Challenger 2016","Bravado Ram 1500","Bravado Viper 2008","Brioso R/A","Buccaneer","Buffalo","Bullet","Benefactor-MG GT","Benefactor-MG SL65 (R230)","Burgerfahrzeug Golf GTI Vision","Calico GTF","Caracara 4x4","Carbonizzare","Casco","Cavalcade","Cheburek","Cheetah","Cheetah Classic","Chino","Clique","Coil Cybertruck","Coil Model S","Coil Model X","Coil Roadster","Cognoscenti","Cognoscenti 55","Cognoscenti Cabrio","Comet","Comet S2","Comet SR","Contender","Coquette","Coquette Blackfin","Coquette D10","Couquette Classic","Cyclone","Cypher","Declasse Corvette C7","Declasse Tahoe","Deveste Eight","Deviant","Dilettante","Dinka RT-3000","Dinka NSX 2017","Dominator","Dominator ASP","Dominator GTT","Dominator GTX","Dominator PiBwasser","Drift Yosemite","Dubsta","Dubsta 6x6","Dubsta SG","Dukes","Elegy Retro Custom","Elegy RH8","Ellie","Emperor","Emperor LX-570","Emperor RCF","Entity XF","Enus Cullinan","Enus Phantom","Enus Spectre","Enus Continental GT","ETR-1","Euros","Exemplar","F620","Faction","Feltzer","Felon","Felon GT","Flash GT","FMJ","FQ 2","Fugitive","Furore GT","Fusilade","Futo","Futo GTX","Future Shock Issi","Gallivanter Defender","Gallivanter Defender Halloween Edition","Gallivanter Defender Christmas Edition","Gauntlet","Gauntlet Classic","Gauntlet Hellfire","Gauntlet Redwood","GB200","Glendale","GP-1","Granger","Growler","Grotti Italia (F458)","Hermes","Hotknife","Huntley S","Imorgon","Impaler","Infernus","Infernus Classic","Ingot","Issi","Itali GTB","Itali GTB Custom","Itali GTO","Jackal","Jester","Jester (Racecar)","Jester Classic","Jester RR","Journey","Jugular","Kamacho","Karin Land Cruiser 200","Karin Tundra 2021","Khamelion","Komoda","Krieger","Lampadati Giulia GTA","Landstalker","Lynx","Mamba","Mammoth HUM EV","Massacro","Monroe","Moonbeam","Nebula Turbo","Neon","Nero","Nero Custom","Nightshade","Novak","Obey A6","Obey A8","Obey Q8","Obey R8","Obey RS6","Obey RS7","Obey S8 (D4)","Ocelot Eletre","Ocelot F-Type R","Ocelot Vanquish Zagto SB","Ocelot Victor","Oracle","Osiris","Panto","Paragon R","Pariah","Patriot","Patriot Stretch","Pegassi Huayra BC","Pegassi Performante (LP640)","Penumbra","Penetrator","Peyote Gasser","Pfister 811","Pfister Panamera","Pfister Taycan","Pfister 918 Spyder","Pheonix","Picador","Prairie","Premier","Previon","Progen 675 LT","Raiden","Rancher XL","Rapid GT","Raptor","Rat-Loader","Rat-Truck","RE-7B","Reaper","Rebel","Rebla GTS","Regina","Remus","Revolter","Rhapsody","Riata","Rocoto","Ruiner","Rumpo","Ruston","Rusty Rebel","Sabre Turbo","Sandking SWB","Sandking XL","SC-1","Schafter","Schafter LWB","Schafter LWB (Armored)","Schafter V12","Schlagen GT","Schwarzer","Seminole","Sentinel Classic","Sentinel XS","Serrano","Seven-70","Shelby GT500","Slam Van","Slamvan Custom","Specter","Stafford","Stallion","Stinger","Stinger GT","Stirling GT","Streiter","Stretch","Sultan","Sultan Classic","Sultan RS","Sultan RS Classic","Super Diamond","Surano","Surge","Swinger","T-20","Tailgater","Tailgater S","Tampa","Taipan","Tempesta","Tezeract","Thrax","Tigon","Torero","Toros","Tropos Rallye","Truffade Centodieci","Truffade Chiron","Tulip","Turismo Classic","Turismo R","Tyrant","Tyrus","Ubermacht 760 (LI)","Ubermacht I8","Ubermacht M3 (G80)","Ubermacht M3 (E46)","Ubermacht M4 (G82)","Ubermacht M4 (GTS)","Ubermacht M5 (E34)","Ubermacht M5 (E60)","Ubermacht M5 (CS)","Ubermacht M5 (CS) Halloween Edition","Ubermacht M8 (F91)","Ubermacht X5 (E70)","Ubermacht X5 (G05)","Ubermacht X6-M (E71)","Ubermacht X7 (G07)","V-STR","Vacca","Vagner","Vamos","Vectre","Velierer","Vigero","Virgo","Virgo Classic","Viseris","Visione","Voltic","Voodoo","Voodoo Custom","Warrener","Warrener HKR","Washington","Windsor","Windsor Drop","X80 Proto","XA-21","XLS","XLS (Armored)","Yosemite","Yosemite Rancher","Z-Type","Zentorno","Zion","Zion Cabrio","Zion Classic","Zorrusso","9F","9F Cabrio","Monowheel","Karin Mark 2","Karin Supra A80","Declasse Camaro 2020",
+  "Akuma","Apocalypse Deathbike","Avarus","Bagger","Bati 801","Bati 801RR","BF-400","Blazer","Blazer Lifeguard","BMX","Carbon RS","Chimera","Cliffhanger","Cruiser","Daemon","Defiler","Diabolus","Diabolus Custom","Double-T","Enduro","Esskey","Faggio","FCR 1000","FCR 1000 Custom","Future Shock Deathbike","Gargoyle","Hakuchou","Hakuchou Drag","Hexer","Innovation","Lectro","Manchez","Nemesis","Nightblade","PCJ-600","Rat Bike","Ruffian","Sanctus","Sanchez","Shotaro","Sovereign","Street Blazer","Stryder","Thrust","Tri-Cycles Race Bike","Vader","Vindicator","Vortex","Whippet Race Bike","Wolfsbane","Zombie Chopper",
+  "Dinghy","Dinghy (2-Seater)","Dinghy (Yacht)","Jetmax","Marquis","SeaShark","Speeder","Squalo","Suntrap","Toro","Tropic",
+  "Alpha-Z1","Cuban 800","Dodo","Duster","Howard NX-25","Luxor","Luxor Deluxe","Malard","Mammatus","Microlight","Nimbus","P-45 Nokota","V-65 Molotok","Velum",
+  "Buzzard","Frogger","Maverick","Sparrow","SuperVolito Carbon","Swift Deluxe","Volatus"];
+
+const NS_VEHICLES = ["Annis Concept 2021","Brabus Rocket G900","Bravado Charger Daytona","Enus EXP 10","Genesis G90","KMTA Optima","Overflod Jesko 2020","Pfister Cayenne","Shelby Cobra Daytona","Truffade Veyron","Ubermacht M5 (F90)","Vapid Focus RS","Benefactor-MG G63 (6X6)","Enus Wraith","Grotti FXX-K Evo","Karin Corolla AE","Overflod CCX","Pfister Panamera Turismo","Skoda Octavia RS","Truffade La Voiture Noire","Ubermacht Z4 (E85)","Vapid GT 2017","Benefactor-Benz GLS 63","Grotti Tributo (F8)","Overflod One","Pfister 911 Turbo 2021","SSC Tuatara","Truffade Bolide","Ubermacht Vision","Vapid Raptor F150","Benefactor-Benz MG Visione","Grotti Stradale (SF90)","Overflod Gemera","Pegassi Veneno (LP750)","Truffade Divo","Vapid Mustang 1965","Benefactor-Benz Vision AVTR","Grotti Superfast (F812)","Overflod Regera","Pegassi Centenario (LP770)","Vapid Mustang MACH-E","Benefactor-MG Project One","Grotti Pista (F488)","Obey TT","Pegassi Terzo","Benefactor-MG E63 (W213)","Grotti Monza (SP2)","Obey RS5 Coupe","Pegassi Urus","Benefactor-Maybach GLS600","Gallivanter Evoque","Obey RS E-Tron GT","Pegassi Diablo (SV)","Benefactor-MG GLE63 Coupe","Obey E-Tron Sportback","Pegassi Aventador (LP700)","Benefactor-MG A45 (W176)","Ocelot Vulcan","Pegassi Alston (SC18)","Benefactor-MG CLS53 (C257)","Ocelot Evora","Pegassi Reventon","Benefactor-Benz GLC300","Ocelot GranTurismo","Pegassi Sian","Benefactor-Benz 300 SL (W198)","Pegassi Countach (LP400)","Benefactor-Benz 190E (Evolution II)","Pegassi Countach (LPI 800-4)","Benefactor-Maybach S63 (W223)","Pegassi SE (PJ1)","Progen Elva","Progen P1","Progen 765 LT (Spider)"];
+
+const PRIV_BIZ = ["Ammunition Store","ATM business","Bar","Car wash","Car sharing","Chip tuning","Clothing shop","Electric station","Farm","Flower shop","Fight club","Furniture shop","Gas station","Grand Elite","Hair salon","Jewelry store","Juice shop","Parking","Pet Shop","State object","Service station","Tattoo studio","Taxi company","Warehouse","24/7 Store"];
+const FAM_BIZ = ["Burger shop","Cowshed","Freight train","Plantation","Oil Well"];
+const BIZ_SHARES = ["Taxi fleet shares","Gas station shares","Chip tuning shares","Barber shop shares","Tattoo studio shares","Armory store shares","Bar shares","Car sharing shares"];
+const GARAGE = ["2 g.s.","5 g.s.","9 g.s.","25 g.s."];
+const WH = ["3 w.h.","4 w.h.","5 w.h."];
+const RE_FEATS = ["garden","custom interior","insurance","helipad","swimming pool","tennis court","long driveway","spacious backyard","nice views","beautiful views","great views"];
+const DATING_OPTS = ["a boyfriend","a girlfriend","a wife","a husband","a date","a valentine","a friend","friends","boyfriends","girlfriends","a family","family members","Casino poker players"];
+const CON_ROLES = ["locksmith","electrician","gardener","surveyor","driver"];
+const CON_SITES = [{v:"",l:"Any site",p:""},{v:"1",l:"Vespucci Blvd",p:"on"},{v:"2",l:"Calais Avenue",p:"on"},{v:"3",l:"Pillbox Hill",p:"in"}];
+const WORK_ROLES = ["trucker","truckers","lawyer","lawyers","DJ","photographer","photographers","bodyguard","bodyguards","professional dancer","professional dancers","personal driver","personal drivers","professional singer","professional singers","assistant","firefighter","firefighters","workers"];
+const OTHER_ITEMS = ["automatic drill","automatic sawmill","automatic rod","automatic oil well","automatic watering can","backpack skin","battery","Biospark","cage with a Border Collie","cage with a Cat","cage with a Cougar","cage with a Husky","cage with a Panther","cage with a Pig","cage with a Poodle","cage with a Monkey","cage with a Pug","cage with a Christmas Elf","cage with a Santa Claus","cage with a New years Husky","cage with a Rabbit","cage with a Rat","cage with a Retriever","cage with a Rottweiler","cage with a Puma","cage with a Westie","cage with a Lion Cub","cage with a Rooster","cage with a Fancy bear","cage with a Cute Hippo","cage with a Mr Candy Cane","cage with a Futuristic Friend","cage with a Kitty Bunny","cage with a Duckling","cage with a Panda","cage with a Mini Robot","cage with a Cyberdog","cage with a Robobeast","premium fuel canister","fuel canister","charger","Christmas key","Christmas copper","Christmas timber","Christmas perch","Christmas seed","Christmas lollipop","New years gift","Little gift","Big gift","Opened gift","Drawing","Dirty Statue","Purified Statue","dice","perch","carp","salmon","trout","megalodon","ray","orca","humpback whale","low quality fishing rod","medium quality fishing rod","high quality fishing rod","max quality fishing rod","advanced quality fishing rod","firework","GrandPro BodyCam","fuel for resource extraction","Grand ticket","hookah","attack juice","protection juice","endurance juice","25% protection juice","riding juice","power juice","immunity juice","juice on becoming an animal","juice for double the payment","fast running juice","Leash","letter G","letter R","letter A","letter N","letter D","license plate","regular lottery ticket","rare lottery ticket","flame and water lottery ticket","Cayo Perico ticket","Car ticket","Secret ticket fragment","Secret ticket","Resource Miners ticket","luminous wheels of type","milk","copper","emerald","ruby","diamond","mushroom","paint can","pearl","pet food","low quality pickaxe","medium quality pickaxe","high quality pickaxe","Prime","Prime Platinum","repair kit","solar barrel","pineapple seed","cabbage seed","pumpkin seed","mandarin seed","mushroom seed","snow","solar panel","SIM card","scrap metal","top quality metal","thread","timber","token","tonic treat","video card","wires","sponge","pineapple fruits","mandarin fruits","strawberry fruits","cabbage vegetables","low quality tires tuning","medium quality tires tuning","high quality tires tuning","low quality brakes tuning","medium quality brakes tuning","high quality brakes tuning","low quality suspension tuning","medium quality suspension tuning","high quality suspension tuning","low quality transmission tuning","medium quality transmission tuning","high quality transmission tuning","low quality engine tuning","medium quality engine tuning","high quality engine tuning","six tailed fox on shoulder pet","hamster on shoulder pet","strong chicken on shoulder pet","owl on shoulder pet","flying bear on shoulder pet","toothless dragon on shoulder pet","leon brawl on shoulder pet","lovely bird egg on shoulder pet","Mr. Robot friend on shoulder pet","el primo corazon brawl on shoulder pet","black voron on shoulder pet","power booster shot","valuable container","desert scarf mask container","biker container","trucker container","racer container","Grand racers container","Ingrand container","Progen container","Maserati container","Benefactor container","gardener container","regular love container","rare love container","Renault container","resources container","diver container","organization container","sphere of influence container","wheels 1 container","wheels 2 container","wheels 3 container","old autumn gold container","old summer gold container","old winter gold container","School container","arena container","daily container","Halloween container","womens gift container of type 1","womens gift container of type 2","mens gift container of type 1","mens gift container of type 2","Valentine 2025 container","daily study of the organization container","Captured caravans container","Delivered caravans container","spatial sound effect","desert scarf mask","tied scarf mask","toothy mask","luminous head bag mask","Abibas pants","Abibas shoes","Lui Vi pants","Lui Vi desert scarf mask","Pezy Boost shoes","Mikachu hoodie","Niki shoes","Grand RP T-shirt","Grand RP pants","Grand RP trousers","TRON helmet","TRON full set","Pans sneakers","RGB neon shoes","shirts for men","shirts for women","pants for men","pants for women","shoes for men","shoes for women","clothing for men","clothing for women",
+  // Full clothing list from XLSX
+  "Abibas Marquee Boost Lows shoes","Abibas Pezy Boost 700 V3 Alvah shoes","Abibas Pezy foam shoes","Abibas Pro Bounce 2019 Lows shoes","Abibas leggings","Abibas pants","Abibas sport pants","Abibas sweatpants","Acic Gel Kayano sneakers","Air Bior pullover sweater","Balenciaga Track sneakers","Bigness mask","Bior pants","Casual neon helmet","Casual neon pants","Casual neon set","Casual neon shoes","Casual neon torso","Chanel top","Christmas tree mask","Cupids crown","Custom Jeans","Cyberpunk greatsword accessory","Daft Punk mask","Glowing Bomber Set NEW Sample LW","Glowing face scarf mask","Grand Chain","Grand RP collection T-shirt","Grand RP collection hoodie","Grand RP collection pants","Ground Mordan 4 Retro Laser 30th shoes","LM Playboy T-shirt with luminous print","LM Playboy full set with luminous print","LM Playboy jacket with luminous print","LM Playboy mask with luminous print","LM Playboy pants with luminous print","LM Playboy sweatshirt with luminous print","Leather gothic pants","Lui Vi T-shirt","Lui Vi full set","Lui Vi jacket","Lui Vi pants","Lui Vi sweatshirt","Lui Vi top","Mikachu hoodie","Mikachu hoodie for women","Mordan 1 shoes","Mordan 6 shoes","Muci Not Fake hoodie","Muci branded flip-flops","Muci hoodie","Muci hoodie with snake","Muci pants","Muci shorts","Muci sweatshirt","Muci trousers","Neon Pants Set New Sample LW","Niki Groundporce One new collection shoes","Niki Groundporce One new collection shoes for men","Niki Shox shoes","Niki Uptempo shoes","Niki Zoom Freak 1 Multi-Color shoes","Niki new collection hoodie","Niki new collection pants","Niki tech fleece pants","Niki tech top","Niki track suit pants","Niki track suit top","Off-White Pezy Boost shoes","Off-White luminous Keezy Boost shoes","Off-White sweatshirt","Pans sneakers","Pezy Boost shoes","Philip Plein T-shirt","RGB neon shoes","Santa Claus mask","Saruko neon mask","Sashmello mask","Shorts Lui Vi","Social Club hoodie","Ston Islan Classic Sportswear","T-shirt of one-color CAP brand","TRON full set","TRON helmet","TRON pants","TRON shoes","TRON torso","The West Pace jacket","Tsum collection T-shirt","UP-Green Sweatshirt","Watch Me sweater","Wedding dress","Wide printed football T-shirt","Womens Love Costume","alien with neon eyes mask","anime mask","bandana mask","bandana top","baseball mask","black jacket with yellow trim","black Lui Vi desert scarf mask of type 1","black Lui Vi pants","black Abibas pants","black The West Pace jacket for men","blue Lui Vi pants","bomber jacket with glowing elements","boxing gloves","boxing helmet","branded Molo T-shirt","branded T-shirt","branded insulated hoodie","branded longsleeve","bright hoodie","bright trousers","carnival mask","chain around the body accessory","chain lost treasure neon accessory","clown mask","collection 2022 T-shirt","collection 5 top","corset top","cowgirl hat","cropp collection T-shirt","day dress","deer antler accessory","deer antlers with a red nose accessory","demon mask","denim jacket","desert scarf mask of type 6","devil mask","dress","earphones with a heart","emoji mask","evil mask","exotic mask","faution top","flying bear on the shoulder accessory","fox mask","fur coat without a hood","gloves","glowing snow glasses","gorilla mask","half-glowing pants","haliky T-shirt","haliky hoodie","handkerchief mask","hearts Pride glasses","insulated personal pants","jacket with T-shirt","jacket with luminous trim","jeans","jumpsuit","kitsune mask","long brand T-shirt","low dress","luminous Fendi pants","luminous Grand RP trousers","luminous Keezy Boost shoes","luminous T-shirt","luminous dress","luminous jacket with turquoise trim","luminous shoes","luminous trousers","mix collection T-shirt","monkey boss mask","multi-colored Pans sneakers","navel piercing accessory","neck scarf accessory","neon pants","neon shoes","new fashionable joggers","owl mask","panama hat","penguin mask","pig mask","pixel glasses","pullover with long sleeve","purge mask","purple and yellow RGB neon shoes","rabbit ears","raccoon mask","raptor mask","rare luminous shoes","raven mask","red sneakers","red stocking mask","reindeer mask","robot human mask","robot mask","rooster mask","samurai mask","scary turtleneck T-shirt","shamanic mask","shiny deer antler headband accessory","short pullover","skeleton king mask","skirt with tights","snowboarders mask","snowflake glasses","snowman mask","sports mask","stealthy mask","stylish suit","summer bra","summer collection T-shirt","summer voyage shorts","tall boots","tight mask","top 2 outerwear","top with chains","trending shark head hat","trendy jacket","vintage Abibas Olympic Jerseys","white Pezy Boost shoes","white tied scarf mask of type 1","winter collection dress","wristband accessory"];
+const ILLEGAL = ["firearm","gun","pistol","rifle","shotgun","ammo","ammunition","bulletproof","armor plate","weed","cannabis","cocaine","meth","drug lab","drugs","ems mask","surgical mask","covid mask","balaclava","radar","scanner","lockpick","lock pick","crowbar","head bag","rope","bandit mask","animal skin","satellite dish","barricade","anti-radar","engine block","air horn","grand coin","battlepass","hype body","tincture soup","medkit","selling people","buying people"];
+const PARTY_LOCS = ["the beach","the yacht","Bahama Mamas Bar","Tequi-la-la Bar","Stadium","Arena","Raton Canyon","Vanilla Unicorn Bar","Hotel Spa Bar","Diamond Resort Bar","Cayo Perico"];
+const OFF_PLACES = ["Vinewood Hills","Rockford Hills","Richman","Sandy Shores","Paleto Bay","Hospital","Capitol","Bahama Mamas Bar","Tequi-la-la Bar","FIB","Hotel Spa Bar","Diamond Resort Bar","Vanilla Unicorn Bar","Church","Stock Exchange","Stadium","Chumash","Lifeinvader","Del Perro Pier","Del Perro Beach","Cayo Perico Island","Raton Canyon","School","SAHP","Mirror Park","Pillbox Hill","Auto Fair"];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const S = {
+  adType: 'selling', cat: 'auto',
+  amt: '', neg: false, rentPd: '',
+  // auto
+  vName:'', vNS:false, cfg:'none', vis:false, lum:'', ins:false, turbo:false, drift:false, tgt:'', fair:false,
+  // re
+  pType:'house', pNum:'', gar:'', wh:'', reF:[], loc:'',
+  // biz
+  bType:'', bNum:'', bShare:false,
+  // other
+  party:false, pLoc:'', its:[{n:'',q:''},{n:'',q:''},{n:'',q:''}],
+  oTrade:false, trFrom:[{n:''},{n:''},{n:''}], trTo:[{n:''},{n:''},{n:''}],
+  // work
+  wHire:true, wSub:'regular', wRole:'', wLoc:'', wYrs:'', wCS:'', wCR:'', wPay:'salary',
+  // dating
+  dMode:'relation', dRel:'', dName:'',
+  // template
+  tpl:''
+};
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const cap1 = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const titleCase = s => s.replace(/\b\w/g, c => c.toUpperCase());
+
+function fmtPrice(raw, neg, lbl) {
+  if (neg || !raw || !raw.trim()) return `${lbl}: Negotiable.`;
+  let v = raw.trim().replace(/,/g,'');
+  if (/million/i.test(v)) {
+    const n = parseFloat(v.replace(/million/i,'').trim());
+    if (!isNaN(n)) { const f = n%1===0 ? n : +n.toFixed(3); return `${lbl}: $${f} Million.`; }
+  }
+  const num = parseFloat(v.replace(/[^0-9.]/g,''));
+  if (isNaN(num)) return `${lbl}: Negotiable.`;
+  if (num >= 1e6) { const m = num/1e6; const f = m%1===0 ? m : +m.toFixed(3); return `${lbl}: $${f} Million.`; }
+  return `${lbl}: $${Math.floor(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.')}.`;
+}
+
+function pLabel() {
+  if (S.adType==='buying') return 'Budget';
+  if (S.adType==='renting_out'||S.adType==='renting') return 'Rent';
+  return 'Price';
+}
+
+function fullPrice(lbl) {
+  lbl = lbl || pLabel();
+  const b = fmtPrice(S.amt, S.neg, lbl);
+  if ((S.adType==='renting_out'||S.adType==='renting') && S.rentPd && !S.neg && S.amt.trim())
+    return b.replace(/\.$/, ` ${S.rentPd}.`);
+  return b;
+}
+
+function rawDollar() { return fmtPrice(S.amt, false, 'X').replace(/^X: /,'').replace(/\.$/,''); }
+
+function checkIllegal(txt) {
+  const l = (txt||'').toLowerCase();
+  for (const t of ILLEGAL) if (l.includes(t)) return t;
+  return null;
+}
+
+function polish(ad) {
+  if (!ad) return ad;
+  ad = cap1(ad.replace(/  +/g,' ').replace(/\.\./g,'.'));
+  if (/\d\.$/.test(ad)) ad = ad.slice(0,-1);
+  else if (!/[.!?]$/.test(ad)) ad += '.';
+  return ad;
+}
+
+// ═══════════════════════════════════════════════════
+// GENERATOR
+// ═══════════════════════════════════════════════════
+function generate() {
+  const WB = document.getElementById('warnBanner');
+  const allTxt = [S.vName, S.tgt, S.tpl, S.pLoc, ...S.its.map(i=>i.n)].join(' ');
+  const bad = checkIllegal(allTxt);
+  if (bad) {
+    WB.classList.add('show');
+    document.getElementById('warnMsg').textContent = `Rejected — contains prohibited item: "${bad}". Remove it and regenerate.`;
+    return `⚠ REJECTED: Illegal item "${bad}" detected in ad.`;
+  }
+  WB.classList.remove('show');
+
+  const acts = {selling:'Selling',buying:'Buying',trading:'Trading',selling_or_trading:'Selling or trading',renting_out:'Renting out',renting:'Renting'};
+  const act = acts[S.adType] || 'Selling';
+  let ad = '';
+
+  // ---- AUTO ----
+  if (S.cat === 'auto') {
+    if (!S.vName.trim()) return '⚠ Enter a vehicle name.';
+    const isSell = ['selling','buying','selling_or_trading'].includes(S.adType);
+    if (S.vNS && isSell) return `⚠ REJECTED: "${S.vName}" is NOT SELLABLE — can only be rented out.`;
+    const vn = `"${S.vName.trim()}"`;
+    const f = [];
+    if (S.cfg==='full') f.push('full configuration');
+    else if (S.cfg==='partial') f.push('partial configuration');
+    if (S.vis) f.push('visual upgrades');
+    if (S.lum.trim()) f.push(`luminous wheels of type ${S.lum.trim()}`);
+    if (S.ins) f.push('insurance');
+    if (S.turbo) f.push('turbo kit');
+    if (S.drift) f.push('drift kit');
+    const fs = f.length ? ' with ' + f.join(', ') : '';
+    if (S.adType==='trading' && S.tgt.trim()) ad = `Trading ${vn}${fs} for "${S.tgt.trim()}".`;
+    else if (S.adType==='selling_or_trading' && S.tgt.trim()) ad = `Selling or trading ${vn}${fs} for "${S.tgt.trim()}". ${fullPrice()}`;
+    else ad = `${act} ${vn}${fs}. ${fullPrice()}`;
+    if (S.fair) ad = ad.replace(/\. (Price|Budget|Rent):.*$/, ' at Auto Fair.');
+  }
+
+  // ---- REAL ESTATE ----
+  else if (S.cat === 'realestate') {
+    if (S.adType==='trading') return '⚠ REJECTED: Houses and apartments are NOT tradable.';
+    const pt = S.pType==='casino_penthouse' ? 'Casino penthouse' : S.pType;
+    const art = S.pType==='apartment' ? 'an' : 'a';
+    const ref = S.pNum.trim() ? `${pt} №${S.pNum.trim()}` : `${art} ${pt}`;
+    const f = [];
+    if (S.reF.includes('garden')) f.push('a garden');
+    if (S.gar) f.push(S.gar);
+    if (S.wh) f.push(S.wh);
+    ['custom interior','insurance','helipad','swimming pool','tennis court','long driveway','spacious backyard','nice views','beautiful views','great views']
+      .forEach(x => { if (S.reF.includes(x)) f.push(x); });
+    let det = f.length===1 ? ' with '+f[0] : f.length>1 ? ' with '+f.slice(0,-1).join(', ')+' and '+f[f.length-1] : '';
+    const locS = S.loc.trim() ? ` in ${titleCase(S.loc.trim())}` : '';
+    const rl = S.adType==='renting_out' ? 'Rent' : S.adType==='renting' ? 'Budget' : pLabel();
+    const ra = S.adType==='renting_out' ? 'Renting out' : S.adType==='renting' ? 'Renting' : act;
+    ad = `${ra} ${ref}${det}${locS}. ${fullPrice(rl)}`;
+  }
+
+  // ---- BUSINESS ----
+  else if (S.cat === 'business') {
+    if (!S.bType) return '⚠ Select a business type.';
+    if (S.bShare) {
+      ad = `${act} ${S.bType}. ${fullPrice()}`;
+    } else {
+      const ref = S.bNum.trim() ? `${S.bType} №${S.bNum.trim()}` : `${S.bType} business`;
+      const over = !S.neg && S.amt.trim() && parseFloat(S.amt.replace(/[^0-9.]/g,'')) >= 3e8;
+      ad = `${act} ${ref}. ${fmtPrice(S.amt, S.neg||over, pLabel())}`;
+    }
+  }
+
+  // ---- OTHER ----
+  else if (S.cat === 'other') {
+    if (S.party) {
+      if (!S.pLoc.trim()) return '⚠ Enter a party location.';
+      const banned = ['mega mall','gang hq','black market','lspd','ems','government','ghetto','green grass','green zone'];
+      if (banned.some(b => S.pLoc.toLowerCase().includes(b))) return `⚠ REJECTED: Cannot promote party at "${S.pLoc}".`;
+      ad = `Party at ${S.pLoc.trim()}.`;
+    } else if (S.oTrade) {
+      const fromItems = S.trFrom.map(i=>i.n.trim()).filter(Boolean);
+      const toItems = S.trTo.map(i=>i.n.trim()).filter(Boolean);
+      if (!fromItems.length) return '⚠ Enter at least one item to trade.';
+      const mkList = arr => arr.length===1?arr[0]:arr.length===2?`${arr[0]} and ${arr[1]}`:`${arr[0]}, ${arr[1]} and ${arr[2]}`;
+      ad = toItems.length ? `Trading ${mkList(fromItems)} for ${mkList(toItems)}.` : `Trading ${mkList(fromItems)}.`;
+    } else {
+      const its = S.its.filter(i => i.n.trim());
+      if (!its.length) return '⚠ Enter at least one item.';
+      if (its.length > 3) return '⚠ REJECTED: Max 3 items per ad.';
+      const parts = its.map(i => { const q=parseInt(i.q); return (!isNaN(q)&&q>1) ? `${q} ${i.n.trim()}` : i.n.trim(); });
+      const str = parts.length===1 ? parts[0] : parts.length===2 ? parts.join(' and ') : parts.slice(0,-1).join(', ')+' and '+parts[parts.length-1];
+      ad = `${act} ${cap1(str)}. ${fullPrice()}`;
+    }
+  }
+
+  // ---- WORK ----
+  else if (S.cat === 'work') {
+    function payStr() {
+      if (S.wPay==='bonus' && S.amt.trim()) return ` Awarding ${rawDollar()} bonus.`;
+      if (S.wPay==='payingwell') return ' Paying well.';
+      if (S.wPay==='negotiable') return ' Salary: Negotiable.';
+      return ` ${fmtPrice(S.amt, S.neg||!S.amt.trim(), 'Salary')}`;
+    }
+    if (S.wHire) {
+      if (S.wSub==='construction') {
+        const site = CON_SITES.find(s=>s.v===S.wCS);
+        const role = CON_ROLES.includes((S.wCR||'').toLowerCase()) ? S.wCR.toLowerCase() : 'workers';
+        const exp = S.wYrs.trim() ? ` with ${S.wYrs.trim()} years of experience` : '';
+        const siteS = site&&site.v ? ` at construction site №${site.v}, ${site.p} ${site.l}` : '';
+        ad = `Hiring ${role}${exp}${siteS}.${payStr()}`;
+      } else if (S.wSub==='plantation') {
+        ad = `Hiring workers for solar panel plantations. ${fmtPrice(S.amt, S.neg||!S.amt.trim(), 'Salary')}`;
+      } else if (S.wSub==='trucker_van') {
+        ad = `Renting out 15% trucker van. ${fullPrice('Budget')}`;
+      } else {
+        const role = S.wRole.trim().toUpperCase()==='DJ' ? 'DJ' : S.wRole.trim()||'workers';
+        const exp = S.wYrs.trim() ? ` with ${S.wYrs.trim()} years of experience` : '';
+        const locS = S.wLoc.trim() ? ` at ${S.wLoc.trim()}` : '';
+        ad = `Hiring ${role}${exp}${locS}.${payStr()}`;
+      }
+    } else {
+      if (S.wSub==='plantation') { ad = 'Looking for solar panel plantation work.'; }
+      else if (S.wSub==='construction') {
+        const site = CON_SITES.find(s=>s.v===S.wCS);
+        ad = `Looking for a job${site&&site.v ? ` at construction site №${site.v}` : ' at the construction site'}.`;
+      } else {
+        const role = S.wRole.trim().toUpperCase()==='DJ' ? 'DJ' : S.wRole.trim() ? cap1(S.wRole.trim()) : 'Worker';
+        const exp = S.wYrs.trim() ? ` with ${S.wYrs.trim()} years of experience` : '';
+        const locS = S.wLoc.trim() ? ` at ${S.wLoc.trim()}` : '';
+        ad = `${role} looking for work${exp}${locS}.`;
+      }
+    }
+  }
+
+  // ---- DATING ----
+  else if (S.cat === 'dating') {
+    if (S.dMode==='person') {
+      if (!S.dName.trim()) return '⚠ Enter full name (first + last).';
+      const pts = S.dName.trim().split(/\s+/);
+      if (pts.length < 2) return '⚠ Full first + last name required.';
+      ad = `Looking for ${pts.map(p=>cap1(p.toLowerCase())).join(' ')}.`;
+    } else {
+      if (!S.dRel) return '⚠ Select a relationship type.';
+      ad = `Looking for ${S.dRel}.`;
+    }
+  }
+
+  // ---- SERVICES / DISCOUNTS ----
+  else if (S.cat==='services' || S.cat==='discounts') {
+    if (!S.tpl.trim()) return '⚠ Enter template text.';
+    ad = S.tpl.trim();
+  }
+
+  return polish(ad) || '⚠ Fill in the required fields.';
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER DYNAMIC FIELDS
+// ═══════════════════════════════════════════════════
+function render() {
+  const icons = {auto:'🚗',realestate:'🏠',business:'🏢',other:'📦',work:'💼',dating:'❤️',services:'✨',discounts:'🏷️'};
+  const titles = {auto:'Vehicle Details',realestate:'Property Details',business:'Business Details',other:'Items & Party',work:'Work Details',dating:'Dating',services:'Service Template',discounts:'Discount Template'};
+  document.getElementById('detailIcon').textContent = icons[S.cat];
+  document.getElementById('detailTitle').textContent = `Step 3 — ${titles[S.cat]}`;
+
+  // Price panel
+  const showPrice = !(S.cat==='dating') && !(S.cat==='work' && (!S.wHire || S.wPay==='payingwell' || S.wPay==='negotiable') && S.wSub!=='trucker_van') && !(S.cat==='work' && S.wSub==='plantation');
+  document.getElementById('pricePanel').style.display = showPrice ? '' : 'none';
+  document.getElementById('priceAmtLbl').textContent = pLabel();
+  document.getElementById('pricePanelTitle').textContent = `Step 4 — ${pLabel()}`;
+  document.getElementById('pricePanelSub').textContent = {Budget:'Budget for buying',Rent:'Rental amount',Price:'Selling price'}[pLabel()]||'';
+  document.getElementById('rentPeriodSection').style.display = (S.adType==='renting_out'||S.adType==='renting') ? '' : 'none';
+
+  const body = document.getElementById('detailBody');
+  const renderers = {auto:renderAuto,realestate:renderRE,business:renderBiz,other:renderOther,work:renderWork,dating:renderDating,services:()=>renderTemplate(body,'services'),discounts:()=>renderTemplate(body,'discounts')};
+  if (renderers[S.cat]) renderers[S.cat](body);
+}
+
+// ─── HELPERS ───
+function inp(id, fn) { const e=document.getElementById(id); if(e){e.addEventListener('input',()=>fn(e.value));e.addEventListener('change',()=>fn(e.value));} }
+function ckb(id, fn) { const e=document.getElementById(id); if(e) e.addEventListener('change',()=>{fn(e.checked);e.closest('.check-item')?.classList.toggle('checked',e.checked);}); }
+
+// ─── AUTO ───
+function renderAuto(el) {
+  const tr = S.adType==='trading'||S.adType==='selling_or_trading';
+  el.innerHTML = `
+    <div class="form-section">
+      <div class="form-row">
+        <label class="field-label">Vehicle Name <span class="req">*</span></label>
+        <div class="v-wrap">
+          <input type="text" id="vInp" placeholder="Search vehicle name…" value="${esc(S.vName)}" autocomplete="off">
+          <div class="v-drop" id="vDrop"></div>
+        </div>
+        <div class="v-status" id="vStat"></div>
+      </div>
+    </div>
+
+    <div class="form-grid form-section">
+      <div class="form-row">
+        <label class="field-label">Configuration</label>
+        <select id="cfgSel">
+          <option value="none"${S.cfg==='none'?' selected':''}>No configuration (stock)</option>
+          <option value="partial"${S.cfg==='partial'?' selected':''}>Partial configuration</option>
+          <option value="full"${S.cfg==='full'?' selected':''}>Full configuration (maxed)</option>
+        </select>
+        <div class="field-hint">Engine / gearbox / brakes / suspension upgrades</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Luminous Wheels Type</label>
+        <input type="text" id="lumInp" placeholder="e.g. 6 or 25 (optional)" value="${esc(S.lum)}">
+        <div class="field-hint">Luminous rims type 25 → luminous wheels of type 25</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Vehicle Extras</div>
+    <div class="check-group form-section">
+      <label class="check-item${S.vis?' checked':''}"><input type="checkbox" id="visC"${S.vis?' checked':''}> 🎨 Visual upgrades</label>
+      <label class="check-item${S.ins?' checked':''}"><input type="checkbox" id="insC"${S.ins?' checked':''}> 🛡 Insurance</label>
+      <label class="check-item${S.turbo?' checked':''}"><input type="checkbox" id="turboC"${S.turbo?' checked':''}> ⚡ Turbo kit</label>
+      <label class="check-item${S.drift?' checked':''}"><input type="checkbox" id="driftC"${S.drift?' checked':''}> 🌀 Drift kit</label>
+      <label class="check-item${S.fair?' checked':''}"><input type="checkbox" id="fairC"${S.fair?' checked':''}> 🏎 At Auto Fair</label>
+    </div>
+
+    ${tr?`<div class="form-row form-section">
+      <label class="field-label">Trading / Selling For</label>
+      <input type="text" id="tgtInp" placeholder='e.g. Annis Silvia (S15)' value="${esc(S.tgt)}">
+      <div class="field-hint">Vehicle ↔ Vehicle only when trading</div>
+    </div>`:''}
+
+    <div class="info-box ib-default">
+      <strong>Term conversions:</strong> max config → full configuration &nbsp;·&nbsp; body kit → visual upgrades &nbsp;·&nbsp; turbo → turbo kit &nbsp;·&nbsp; drift tuning → drift kit &nbsp;·&nbsp; unique rims → luminous wheels of type N &nbsp;·&nbsp; extras → of type
+    </div>`;
+
+  initVehicleSearch();
+  inp('cfgSel', v=>S.cfg=v); inp('lumInp', v=>S.lum=v);
+  ckb('visC',v=>S.vis=v); ckb('insC',v=>S.ins=v); ckb('turboC',v=>S.turbo=v); ckb('driftC',v=>S.drift=v); ckb('fairC',v=>S.fair=v);
+  if (tr) inp('tgtInp', v=>S.tgt=v);
+}
+
+// ─── REAL ESTATE ───
+function renderRE(el) {
+  el.innerHTML = `
+    <div class="form-grid form-section">
+      <div class="form-row">
+        <label class="field-label">Property Type <span class="req">*</span></label>
+        <select id="pTypeSel">
+          <option value="house"${S.pType==='house'?' selected':''}>House</option>
+          <option value="apartment"${S.pType==='apartment'?' selected':''}>Apartment</option>
+          <option value="mansion"${S.pType==='mansion'?' selected':''}>Mansion</option>
+          <option value="casino_penthouse"${S.pType==='casino_penthouse'?' selected':''}>Casino penthouse</option>
+        </select>
+        <div class="field-hint">"Casino apartment" → always Casino penthouse</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Property Number</label>
+        <input type="text" id="pNumIn" placeholder="e.g. 758 (leave blank for generic)" value="${esc(S.pNum)}">
+        <div class="field-hint">Blank → "a house" · With number → "house №758" · Max 1 numbered property per ad</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Garage Spaces</label>
+        <select id="garSel">
+          <option value="">None</option>
+          ${GARAGE.map(g=>`<option value="${g}"${S.gar===g?' selected':''}>${g}</option>`).join('')}
+        </select>
+        <div class="field-hint">Only: 2 g.s. · 5 g.s. · 9 g.s. · 25 g.s.</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Warehouse (w.h.)</label>
+        <select id="whSel">
+          <option value="">None</option>
+          ${WH.map(w=>`<option value="${w}"${S.wh===w?' selected':''}>${w}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <div class="sec-label">Extra Features <span style="font-weight:400;font-size:10px;letter-spacing:0;color:var(--txt3)">(click to toggle — auto policy order)</span></div>
+    <div class="chip-group form-section" id="reChips">
+      ${RE_FEATS.map(f=>`<div class="chip${S.reF.includes(f)?' on':''}" data-f="${f}">${f}</div>`).join('')}
+    </div>
+
+    <div class="form-row form-section">
+      <label class="field-label">Location</label>
+      <input type="text" id="locIn" placeholder="e.g. Vinewood Hills, Mirror Park" value="${esc(S.loc)}" list="offPlaces">
+      <datalist id="offPlaces">${OFF_PLACES.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <div class="field-hint">Official places → capitalize. Apartments cannot be insured.</div>
+    </div>
+
+    <div class="info-box ib-gold">⚠ Trading is NOT allowed for houses/apartments. Use "Renting Out" ad type for rentals. Garage spaces format: always use g.s. notation.</div>`;
+
+  inp('pTypeSel', v=>{S.pType=v; if(v==='apartment') S.reF=S.reF.filter(f=>f!=='insurance');});
+  inp('pNumIn', v=>S.pNum=v); inp('garSel', v=>S.gar=v); inp('whSel', v=>S.wh=v); inp('locIn', v=>S.loc=v);
+  document.querySelectorAll('#reChips .chip').forEach(c=>c.addEventListener('click',()=>{
+    const f=c.dataset.f;
+    if(f==='insurance'&&S.pType==='apartment'){alert('Apartments cannot be insured per EN3 policy.');return;}
+    S.reF.includes(f) ? S.reF=S.reF.filter(x=>x!==f) : S.reF.push(f);
+    c.classList.toggle('on');
+  }));
+}
+
+// ─── BUSINESS ───
+function renderBiz(el) {
+  el.innerHTML = `
+    <div class="form-section">
+      <label class="field-label" style="margin-bottom:8px">Ad Mode</label>
+      <div class="toggle-group" id="bizModeTg">
+        <div class="toggle-btn${!S.bShare?' active':''}" data-v="biz">Business</div>
+        <div class="toggle-btn${S.bShare?' active':''}" data-v="share">Business Shares</div>
+      </div>
+    </div>
+
+    ${S.bShare ? `
+    <div class="form-row form-section">
+      <label class="field-label">Share Type <span class="req">*</span></label>
+      <select id="bTypeSel"><option value="">— select —</option>${BIZ_SHARES.map(b=>`<option value="${b}"${S.bType===b?' selected':''}>${b}</option>`).join('')}</select>
+    </div>` : `
+    <div class="form-grid form-section">
+      <div class="form-row">
+        <label class="field-label">Business Type <span class="req">*</span></label>
+        <select id="bTypeSel">
+          <option value="">— select —</option>
+          <optgroup label="Private Businesses">${PRIV_BIZ.map(b=>`<option value="${b}"${S.bType===b?' selected':''}>${b}</option>`).join('')}</optgroup>
+          <optgroup label="Family Businesses">${FAM_BIZ.map(b=>`<option value="${b}"${S.bType===b?' selected':''}>${b}</option>`).join('')}</optgroup>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Business Number</label>
+        <input type="text" id="bNumIn" placeholder="e.g. 34, 150 (optional)" value="${esc(S.bNum)}">
+        <div class="field-hint">With number: "Jewelry store №44" · Without: "Jewelry store business"</div>
+      </div>
+    </div>
+    <div class="info-box ib-warn">
+      ⚠ <strong>Corrections:</strong> Drug lab → Burger shop &nbsp;·&nbsp; Barber → Hair salon &nbsp;·&nbsp; Charging station → Electric station &nbsp;·&nbsp; Auto workshop → Service station &nbsp;·&nbsp; Strip club → Bar &nbsp;·&nbsp; Gun store → Ammunition Store &nbsp;·&nbsp; Personal business → Private business &nbsp;·&nbsp; Price over $300M → Negotiable
+    </div>`}`;
+
+  inp('bTypeSel', v=>S.bType=v);
+  if (!S.bShare) inp('bNumIn', v=>S.bNum=v);
+  document.querySelectorAll('#bizModeTg .toggle-btn').forEach(t=>t.addEventListener('click',()=>{
+    S.bShare=t.dataset.v==='share'; S.bType=''; S.bNum=''; renderBiz(el);
+  }));
+}
+
+// ─── OTHER ───
+function renderOther(el) {
+  el.innerHTML = `
+    <div class="form-section">
+      <label class="field-label" style="margin-bottom:8px">Ad Mode</label>
+      <div class="toggle-group" id="otherModeTg">
+        <div class="toggle-btn${!S.party&&!S.oTrade?' active':''}" data-v="items">📦 Items (max 3)</div>
+        <div class="toggle-btn${S.oTrade?' active':''}" data-v="trade">🔄 Trading Items</div>
+        <div class="toggle-btn${S.party?' active':''}" data-v="party">🎉 Party Ad</div>
+      </div>
+    </div>
+
+    ${S.party ? `
+    <div class="form-row form-section">
+      <label class="field-label">Party Location <span class="req">*</span></label>
+      <input type="text" id="pLocIn" placeholder="e.g. the beach, Bahama Mamas Bar, house №49…" value="${esc(S.pLoc)}" list="partyList">
+      <datalist id="partyList">${PARTY_LOCS.map(p=>`<option value="${p}">`).join('')}</datalist>
+      <div class="field-hint ok">✓ Allowed: beach, yacht, Bahama Mamas Bar, Tequi-la-la Bar, Stadium, Arena, Raton Canyon, Vanilla Unicorn Bar, Hotel Spa Bar, Diamond Resort Bar, Cayo Perico, houses/apartments</div>
+      <div class="field-hint bad" style="margin-top:4px">✗ Banned: Mega Mall, Gang HQ, Black Market, LSPD/FIB/EMS, Government, ghetto, green grass/zone</div>
+    </div>` : S.oTrade ? `
+    <div class="sec-label">What You Are Trading</div>
+    <div class="form-section" style="display:flex;flex-direction:column;gap:8px">
+      ${[0,1,2].map(i=>`<input type="text" id="trFrom${i}" placeholder="Item ${i+1}${i>0?' (optional)':' *'} — e.g. luminous stone, Grand tickets…" value="${esc(S.trFrom[i].n)}" list="itemList">`).join('')}
+    </div>
+    <div class="sec-label" style="margin-top:4px">⇄ Trading For</div>
+    <div class="form-section" style="display:flex;flex-direction:column;gap:8px">
+      ${[0,1,2].map(i=>`<input type="text" id="trTo${i}" placeholder="${i===0?'Item 1 — e.g. wheels containers, Lui Vi pants…':'Item '+(i+1)+' (optional)'}" value="${esc(S.trTo[i].n)}" list="itemList">`).join('')}
+      <datalist id="itemList">${OTHER_ITEMS.map(o=>`<option value="${o}">`).join('')}</datalist>
+    </div>
+    <div class="info-box ib-default">
+      <strong>Example output:</strong> Trading luminous stone and Grand tickets for Lui Vi pants and wheels 1 container.
+    </div>` : `
+    <div class="sec-label">Items (max 3 per EN3 policy)</div>
+    <div class="form-section" style="display:flex;flex-direction:column;gap:8px">
+      ${[0,1,2].map(i=>`
+      <div style="display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center">
+        <input type="text" id="it${i}" placeholder="Item ${i+1} — e.g. Grand ticket, desert scarf mask, wires…" value="${esc(S.its[i].n)}" list="itemList">
+        <input type="number" id="qt${i}" placeholder="Qty" min="1" value="${esc(S.its[i].q)}">
+      </div>`).join('')}
+      <datalist id="itemList">${OTHER_ITEMS.map(o=>`<option value="${o}">`).join('')}</datalist>
+    </div>
+    <div class="info-box ib-default">
+      <strong>Conversions:</strong> crates/cases → containers &nbsp;·&nbsp; spray cans → paint cans &nbsp;·&nbsp; extras → of type N &nbsp;·&nbsp; graphic card → video card &nbsp;·&nbsp; crypto → token &nbsp;·&nbsp; rp ticket → Grand ticket
+    </div>
+    <div class="info-box ib-red" style="margin-top:8px">
+      ❌ Banned items: drugs, guns, ammo, balaclava, scanners, crowbar, medkit, animal skin, satellite dish, engine block, air horn, EMS/covid mask, USB virus
+    </div>`}`;
+
+  document.querySelectorAll('#otherModeTg .toggle-btn').forEach(t=>t.addEventListener('click',()=>{
+    S.party=t.dataset.v==='party'; S.oTrade=t.dataset.v==='trade'; renderOther(el);
+  }));
+  if (S.party) { inp('pLocIn', v=>S.pLoc=v); }
+  else if (S.oTrade) {
+    for(let i=0;i<3;i++){inp(`trFrom${i}`,v=>S.trFrom[i].n=v);inp(`trTo${i}`,v=>S.trTo[i].n=v);}
+  } else { for(let i=0;i<3;i++){inp(`it${i}`,v=>S.its[i].n=v);inp(`qt${i}`,v=>S.its[i].q=v);} }
+}
+
+// ─── WORK ───
+function renderWork(el) {
+  const isH = S.wHire;
+  const showPay = isH && S.wSub!=='plantation' && S.wSub!=='trucker_van';
+
+  el.innerHTML = `
+    <div class="form-section">
+      <label class="field-label" style="margin-bottom:8px">Mode</label>
+      <div class="toggle-group" id="workModeTg">
+        <div class="toggle-btn${isH?' active':''}" data-v="hire">📋 Hiring / Offering Work</div>
+        <div class="toggle-btn${!isH?' active':''}" data-v="seek">🙋 Looking for Work</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Work Type</div>
+    <div class="toggle-group form-section" id="workSubTg">
+      <div class="toggle-btn${S.wSub==='regular'?' active':''}" data-v="regular">Regular</div>
+      <div class="toggle-btn${S.wSub==='construction'?' active':''}" data-v="construction">🏗 Construction Site</div>
+      <div class="toggle-btn${S.wSub==='plantation'?' active':''}" data-v="plantation">🌿 Solar Plantation</div>
+      ${isH?`<div class="toggle-btn${S.wSub==='trucker_van'?' active':''}" data-v="trucker_van">🚚 Trucker Van</div>`:''}
+    </div>
+
+    ${S.wSub==='regular'?`
+    <div class="form-grid-3 form-section">
+      <div class="form-row">
+        <label class="field-label">${isH?'Role to Hire':'Your Role'}</label>
+        <input type="text" id="wRoleIn" placeholder="${isH?'e.g. truckers, DJ, bodyguard…':'e.g. Lawyer, DJ, Trucker…'}" value="${esc(S.wRole)}" list="wRoleList">
+        <datalist id="wRoleList">${WORK_ROLES.map(r=>`<option value="${r}">`).join('')}</datalist>
+        <div class="field-hint">DJ → ALL-CAPS always &nbsp;·&nbsp; exotic dancers → professional dancer &nbsp;·&nbsp; level → years of experience</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Location (optional)</label>
+        <input type="text" id="wLocIn" placeholder="e.g. FIB, TV station, beach market…" value="${esc(S.wLoc)}" list="wLocList">
+        <datalist id="wLocList"><option value="FIB"><option value="TV station"><option value="beach market"><option value="Paleto Bay"></datalist>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Years of Experience</label>
+        <input type="text" id="wYrsIn" placeholder="e.g. 3 → 'with 3 years…'" value="${esc(S.wYrs)}">
+        <div class="field-hint">"level 3 driver" → "driver with 3 years of experience"</div>
+      </div>
+    </div>`:''}
+
+    ${S.wSub==='construction'?`
+    <div class="sec-label">Construction Site</div>
+    <div class="site-cards form-section" id="siteCards">
+      ${CON_SITES.map(s=>`<div class="site-card${S.wCS===s.v?' active':''}" data-v="${s.v}"><span class="sc-num">${s.v||'—'}</span><div class="sc-name">${s.l}</div></div>`).join('')}
+    </div>
+    ${isH?`
+    <div class="form-grid form-section">
+      <div class="form-row">
+        <label class="field-label">Specific Role</label>
+        <select id="wCRsel">
+          <option value="">workers (general)</option>
+          ${CON_ROLES.map(r=>`<option value="${r}"${S.wCR===r?' selected':''}>${r}${r==='locksmith'?' (Lumberjack)':r==='gardener'?' (Farmer)':r==='surveyor'?' (Oilman)':''}</option>`).join('')}
+        </select>
+        <div class="field-hint">5 valid roles: locksmith, electrician, gardener, surveyor, driver. Multiple roles → leave as "workers"</div>
+      </div>
+      <div class="form-row">
+        <label class="field-label">Years of Experience</label>
+        <input type="text" id="wYrsIn" placeholder="e.g. 3" value="${esc(S.wYrs)}">
+      </div>
+    </div>`:''}
+    `:''}
+
+    ${S.wSub==='plantation'?`<div class="info-box ib-green">${isH?'✓ Output: <em>Hiring workers for solar panel plantations. Salary: …</em>':'✓ Output: <em>Looking for solar panel plantation work.</em>'}<br>No extra fields needed for this type.</div>`:''}
+
+    ${S.wSub==='trucker_van'&&isH?`<div class="info-box ib-green">✓ Output: <em>Renting out 15% trucker van. Budget: $… per week.</em><br>Set the amount in the Price panel below.</div>`:''}
+
+    ${showPay?`
+    <hr class="div">
+    <div class="sec-label">Pay Format</div>
+    <div class="pay-cards form-section" id="payCds">
+      <div class="pay-card${S.wPay==='salary'?' active':''}" data-v="salary"><span class="pc-ico">💵</span><div class="pc-lbl">Salary: $amount</div></div>
+      <div class="pay-card${S.wPay==='negotiable'?' active':''}" data-v="negotiable"><span class="pc-ico">🤝</span><div class="pc-lbl">Salary: Negotiable</div></div>
+      <div class="pay-card${S.wPay==='bonus'?' active':''}" data-v="bonus"><span class="pc-ico">🎁</span><div class="pc-lbl">Awarding $bonus</div></div>
+      <div class="pay-card${S.wPay==='payingwell'?' active':''}" data-v="payingwell"><span class="pc-ico">💰</span><div class="pc-lbl">Paying well</div></div>
+    </div>
+    <div class="field-hint">Policy allows: Salary with amount · Salary Negotiable · Awarding [amount] bonus · "paying well"</div>`:''}
+  `;
+
+  document.querySelectorAll('#workModeTg .toggle-btn').forEach(t=>t.addEventListener('click',()=>{S.wHire=t.dataset.v==='hire';S.wSub='regular';renderWork(el);render();}));
+  document.querySelectorAll('#workSubTg .toggle-btn').forEach(t=>t.addEventListener('click',()=>{S.wSub=t.dataset.v;renderWork(el);render();}));
+  document.querySelectorAll('#siteCards .site-card')?.forEach(c=>c.addEventListener('click',()=>{S.wCS=c.dataset.v;document.querySelectorAll('#siteCards .site-card').forEach(x=>x.classList.toggle('active',x===c));}));
+  document.querySelectorAll('#payCds .pay-card')?.forEach(c=>c.addEventListener('click',()=>{S.wPay=c.dataset.v;renderWork(el);render();}));
+  inp('wRoleIn',v=>S.wRole=v); inp('wLocIn',v=>S.wLoc=v); inp('wYrsIn',v=>S.wYrs=v);
+  inp('wCRsel',v=>S.wCR=v);
+}
+
+// ─── DATING ───
+function renderDating(el) {
+  el.innerHTML = `
+    <div class="form-section">
+      <div class="toggle-group" id="dateTg">
+        <div class="toggle-btn${S.dMode==='relation'?' active':''}" data-v="relation">Relationship / General</div>
+        <div class="toggle-btn${S.dMode==='person'?' active':''}" data-v="person">🔍 Specific Person</div>
+      </div>
+    </div>
+
+    <div id="dateRelSec" style="display:${S.dMode==='relation'?'':'none'}">
+      <div class="form-row form-section">
+        <label class="field-label">Looking for…</label>
+        <select id="dRelSel"><option value="">— select —</option>${DATING_OPTS.map(d=>`<option value="${d}"${S.dRel===d?' selected':''}>${d}</option>`).join('')}</select>
+      </div>
+    </div>
+
+    <div id="datePersonSec" style="display:${S.dMode==='person'?'':'none'}">
+      <div class="form-row form-section">
+        <label class="field-label">Full Name (First + Last) <span class="req">*</span></label>
+        <input type="text" id="dNameIn" placeholder="e.g. Lucio Escobar" value="${esc(S.dName)}">
+        <div class="field-hint warn">⚠ Person must be in GRP database (Grand RP Mail) · Full first + last name required · Cannot search for classified state leaders/deputies</div>
+      </div>
+    </div>
+
+    <div class="info-box ib-default">
+      <strong>Allowed:</strong> boyfriend/girlfriend, wife/husband, date, valentine, friend(s), family, family members, Casino poker players, specific person<br>
+      <strong>Rejected:</strong> buying a wife/husband &nbsp;·&nbsp; troll names not in DB &nbsp;·&nbsp; state org leaders/deputies (unless in leader list) &nbsp;·&nbsp; looking for a lesbian/gay
+    </div>`;
+
+  document.querySelectorAll('#dateTg .toggle-btn').forEach(t=>t.addEventListener('click',()=>{
+    S.dMode=t.dataset.v;
+    document.getElementById('dateRelSec').style.display=S.dMode==='relation'?'':'none';
+    document.getElementById('datePersonSec').style.display=S.dMode==='person'?'':'none';
+    document.querySelectorAll('#dateTg .toggle-btn').forEach(x=>x.classList.toggle('active',x===t));
+  }));
+  inp('dRelSel',v=>S.dRel=v); inp('dNameIn',v=>S.dName=v);
+}
+
+// ─── TEMPLATE ───
+function renderTemplate(el, cat) {
+  const isD = cat==='discounts';
+  el.innerHTML = `
+    <div class="form-row form-section">
+      <label class="field-label">${isD?'Discount Template Text':'Service Template Text'}</label>
+      <textarea id="tplIn" rows="4" placeholder="${isD?'e.g. Chip tuning №4 is offering a 50% discount all day. Call us for more discounts.':'e.g. Are you new in town? Come to Taxi (GPS №1) near the Casino! Join the best Taxi company in town.'}">${esc(S.tpl)}</textarea>
+      <div class="field-hint">${isD?'Must contain a specific % percentage value to qualify as Discounts category.':'Template must be registered in LI database, or it will be rejected.'}</div>
+    </div>
+    <div class="info-box ib-default">${isD?'<strong>Example:</strong> Chip tuning №4 is offering a 50% discount all day. Call us for more discounts.':'<strong>Service vs Discounts:</strong> If a specific % discount is mentioned → use Discounts category.<br><strong>Office template:</strong> Join [Name] Family Office (№12345)! Today, we offer bonuses, easy tasks, and extra cash.'}</div>`;
+  inp('tplIn', v=>S.tpl=v);
+}
+
+// ─── VEHICLE SEARCH ───
+function initVehicleSearch() {
+  const inp_ = document.getElementById('vInp');
+  const drop = document.getElementById('vDrop');
+  const stat = document.getElementById('vStat');
+  if (!inp_) return;
+
+  function setStatus(name) {
+    if (!name) { stat.className='v-status'; return; }
+    const ns = NS_VEHICLES.some(v=>v.toLowerCase()===name.toLowerCase());
+    const ok = SELL_VEHICLES.some(v=>v.toLowerCase()===name.toLowerCase());
+    stat.className = 'v-status show ' + (ns?'nosell':ok?'sell':'unknown');
+    stat.textContent = ns?'⚠ NOT SELLABLE — can only be rented out':ok?'✓ Sellable vehicle':'Vehicle not found in list — verify spelling';
+    S.vNS = ns;
+  }
+
+  inp_.addEventListener('input', () => {
+    S.vName = inp_.value; setStatus(inp_.value.trim());
+    const q = inp_.value.toLowerCase().trim();
+    if (!q) { drop.classList.remove('open'); return; }
+    const sl = SELL_VEHICLES.filter(v=>v.toLowerCase().includes(q)).slice(0,10);
+    const nl = NS_VEHICLES.filter(v=>v.toLowerCase().includes(q)).slice(0,4);
+    const all = [...sl.map(v=>({v,ns:false})),...nl.map(v=>({v,ns:true}))];
+    if (!all.length) { drop.classList.remove('open'); return; }
+    drop.innerHTML = all.map(({v,ns})=>`<div class="v-opt" data-n="${esc(v)}"><span>${esc(v)}</span><span class="v-tag ${ns?'nosell':'sell'}">${ns?'NOT SELLABLE':'✓ Sellable'}</span></div>`).join('');
+    drop.classList.add('open');
+    drop.querySelectorAll('.v-opt').forEach(o=>o.addEventListener('mousedown', e=>{
+      e.preventDefault();
+      inp_.value=o.dataset.n; S.vName=o.dataset.n;
+      S.vNS=!!o.querySelector('.nosell');
+      setStatus(o.dataset.n); drop.classList.remove('open');
+    }));
+  });
+  inp_.addEventListener('blur', ()=>setTimeout(()=>drop.classList.remove('open'),160));
+  setStatus(S.vName);
+}
+
+// ═══════════════════════════════════════════════════
+// GLOBAL EVENTS
+// ═══════════════════════════════════════════════════
+document.getElementById('adTypeGrid').addEventListener('click', e=>{
+  const b = e.target.closest('.at-btn'); if(!b||!b.dataset.v) return;
+  document.querySelectorAll('.at-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); S.adType=b.dataset.v; render();
+});
+
+document.getElementById('catTabs').addEventListener('click', e=>{
+  const t = e.target.closest('.cat-tab'); if(!t||!t.dataset.v) return;
+  document.querySelectorAll('.cat-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); S.cat=t.dataset.v;
+  // Reset amount on category change
+  S.amt=''; S.neg=false;
+  document.getElementById('amtInput').value='';
+  document.getElementById('negCheck').checked=false;
+  document.getElementById('negLabel').classList.remove('checked');
+  render();
+});
+
+document.getElementById('amtInput').addEventListener('input', e=>S.amt=e.target.value);
+document.getElementById('negCheck').addEventListener('change', e=>{
+  S.neg=e.target.checked;
+  document.getElementById('negLabel').classList.toggle('checked', e.target.checked);
+});
+document.getElementById('rentPeriodSel').addEventListener('change', e=>S.rentPd=e.target.value);
+
+document.getElementById('genBtn').addEventListener('click', ()=>{
+  S.amt = document.getElementById('amtInput').value;
+  S.neg = document.getElementById('negCheck').checked;
+  S.rentPd = document.getElementById('rentPeriodSel').value;
+  const result = generate();
+  const out = document.getElementById('adOutput');
+  const status = document.getElementById('adStatus');
+  const charCount = document.getElementById('charCount');
+  out.textContent = result;
+  out.classList.toggle('empty', result.startsWith('⚠'));
+  if (result.startsWith('⚠')) {
+    status.textContent='ERROR';
+    status.style.color='var(--red2)';
+    charCount.textContent='';
+  } else {
+    status.textContent='OK — EN3 COMPLIANT';
+    status.style.color='var(--green)';
+    charCount.textContent=`${result.length} characters`;
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  const t = document.getElementById('adOutput').textContent;
+  if (!t || t.startsWith('Click') || t.startsWith('⚠')) return;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b = document.getElementById('copyBtn');
+    b.textContent='✓ Copied to Clipboard!'; b.classList.add('done');
+    setTimeout(()=>{ b.textContent='📋 Copy to Clipboard'; b.classList.remove('done'); }, 2200);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>

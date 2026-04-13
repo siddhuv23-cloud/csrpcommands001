@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Available Soon — CS RP COMMANDS ZONE</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+:root {
+  --bg: #050a14;
+  --surface: #0b1628;
+  --surface2: #0f1e36;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7c3aed;
+  --text: #e2eaf7;
+  --muted: #6a85aa;
+  --border: rgba(0,212,255,0.15);
+  --glow: 0 0 30px rgba(0,212,255,0.3);
+  --glow2: 0 0 30px rgba(255,107,53,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 72px;
+  background: rgba(5,10,20,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo .logo-icon {
+  width: 36px; height: 36px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: var(--glow);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  transition: color 0.3s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+  background: transparent;
+  border: 1px solid var(--accent) !important;
+  color: var(--accent) !important;
+  padding: 8px 20px;
+  border-radius: 4px;
+  transition: background 0.3s !important;
+}
+.nav-cta:hover { background: rgba(0,212,255,0.1) !important; }
+.nav-cta::after { display: none !important; }
+
+.hamburger {
+  display: none;
+  color: var(--accent);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* ===== MOBILE MENU ===== */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(5,10,20,0.97);
+  backdrop-filter: blur(20px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.mobile-overlay.active { display: flex; }
+.mobile-overlay a {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 3px;
+  transition: color 0.3s;
+}
+.mobile-overlay a:hover { color: var(--accent); }
+.mobile-close {
+  position: absolute;
+  top: 24px; right: 32px;
+  font-size: 1.8rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.mobile-close:hover { color: var(--accent); }
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Grid background */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
+
+/* Orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: pulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.orb-1 { width: 500px; height: 500px; top: -100px; left: -100px; background: rgba(0,212,255,0.07); }
+.orb-2 { width: 400px; height: 400px; bottom: -60px; right: -60px; background: rgba(124,58,237,0.09); animation-delay: 3s; }
+.orb-3 { width: 300px; height: 300px; top: 30%; right: 15%; background: rgba(255,107,53,0.06); animation-delay: 1.5s; }
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ===== CARD ===== */
+.soon-card {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 680px;
+  width: 100%;
+  background: rgba(11,22,40,0.7);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 64px 56px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 80px rgba(0,212,255,0.06), 0 32px 80px rgba(0,0,0,0.5);
+  animation: fadeUp 0.9s ease both;
+}
+
+.soon-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.2), transparent 50%, rgba(124,58,237,0.15));
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Top scanline accent */
+.soon-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 1px;
+}
+
+/* Icon ring */
+.icon-ring {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 32px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0,212,255,0.25);
+  animation: spin 10s linear infinite;
+}
+
+.icon-ring-outer::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.icon-ring-inner {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0,212,255,0.15);
+  animation: spin 6s linear infinite reverse;
+}
+
+.icon-core {
+  width: 56px; height: 56px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--accent);
+  box-shadow: var(--glow);
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Badge */
+.soon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.soon-badge .dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Title */
+.soon-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.soon-title .highlight {
+  background: linear-gradient(135deg, var(--accent), #0094ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtitle */
+.soon-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 460px;
+  margin: 0 auto 40px;
+}
+
+/* Divider */
+.soon-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 40px;
+  max-width: 320px;
+}
+.soon-divider::before,
+.soon-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2));
+}
+.soon-divider::after {
+  background: linear-gradient(90deg, rgba(0,212,255,0.2), transparent);
+}
+.soon-divider span {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Progress bar */
+.progress-wrap {
+  margin-bottom: 40px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.progress-label span:last-child { color: var(--accent); }
+.progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #0094ff);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(0,212,255,0.5);
+  transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CTA buttons */
+.soon-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: #050a14;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 0 40px rgba(0,212,255,0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 50px rgba(0,212,255,0.55);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-3px);
+}
+
+/* Corner decorations */
+.corner {
+  position: absolute;
+  width: 20px; height: 20px;
+  opacity: 0.5;
+}
+.corner-tl { top: 16px; left: 16px; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+.corner-tr { top: 16px; right: 16px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+.corner-bl { bottom: 16px; left: 16px; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+.corner-br { bottom: 16px; right: 16px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+
+/* Floating particles */
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-up linear infinite;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.2; }
+  100% { transform: translateY(-20px) scale(1); opacity: 0; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== FOOTER ===== */
+footer {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--border);
+  background: rgba(11,22,40,0.6);
+  backdrop-filter: blur(10px);
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 48px 32px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+}
+
+.footer-brand p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.social-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+}
+.social-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--glow);
+}
+
+.footer-links h4 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.footer-links ul { list-style: none; }
+.footer-links ul li { margin-bottom: 10px; }
+.footer-links ul li a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+.footer-links ul li a:hover { color: var(--text); }
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 48px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.footer-bottom a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .soon-card { padding: 48px 28px; }
+  .footer-inner { grid-template-columns: 1fr; gap: 32px; padding: 40px 24px 24px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; padding: 16px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon"><i class="fa fa-shield"></i></div>
+    CS RP ZONE
+  </a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="rpzone.html">RP ZONE</a>
+    <a href="https://discord.gg/MmtqhsJJPF" class="nav-cta">DISCORD</a>
+  </div>
+  <i class="fa fa-bars hamburger" onclick="openMenu()"></i>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-overlay" id="mobileOverlay">
+  <i class="fa fa-close mobile-close" onclick="closeMenu()"></i>
+  <a href="index.html" onclick="closeMenu()">HOME</a>
+  <a href="about.html" onclick="closeMenu()">ABOUT</a>
+  <a href="rpzone.html" onclick="closeMenu()">RP ZONE</a>
+  <a href="https://discord.gg/MmtqhsJJPF" onclick="closeMenu()">DISCORD</a>
+</div>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Particles -->
+  <div class="particles" id="particles"></div>
+
+  <div class="soon-card">
+    <!-- Corner accents -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- Icon -->
+    <div class="icon-ring">
+      <div class="icon-ring-outer"></div>
+      <div class="icon-ring-inner"></div>
+      <div class="icon-core"><i class="fa fa-lock"></i></div>
+    </div>
+
+    <!-- Badge -->
+    <div class="soon-badge">
+      <span class="dot"></span>
+      UNDER CONSTRUCTION
+    </div>
+
+    <!-- Title -->
+    <h1 class="soon-title">
+      <span class="highlight">Available</span> Soon
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="soon-sub">
+      This section is currently being built. We're documenting every command, rule, and roleplay mechanic — check back soon or join our Discord for updates.
+    </p>
+
+    <!-- Divider -->
+    <div class="soon-divider"><span>// PROGRESS</span></div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>BUILD STATUS</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="soon-btns">
+      <a href="index.html" class="btn-primary">
+        <i class="fa fa-arrow-left"></i> GO BACK HOME
+      </a>
+      <a href="https://discord.gg/MmtqhsJJPF" class="btn-secondary">
+        <i class="fa fa-comments"></i> JOIN DISCORD
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <p>Your definitive resource for Grand RP commands, organization guides, and roleplay rules. Built by players, for players.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fa fa-facebook"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-linkedin"></i></a>
+        <a href="https://www.youtube.com/@satishch2187" class="social-btn"><i class="fa fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="rpzone.html">RP Zone</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Organizations</h4>
+      <ul>
+        <li><a href="#">Government</a></li>
+        <li><a href="#">FIB</a></li>
+        <li><a href="#">LSPD</a></li>
+        <li><a href="#">SAHP</a></li>
+        <li><a href="#">EMS</a></li>
+        <li><a href="#">National Guard</a></li>
+        <li><a href="#">Lifeinvader</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://discord.gg/MmtqhsJJPF">Discord</a></li>
+        <li><a href="https://gta5grand.com/?ref=75647">Grand RP</a></li>
+        <li><a href="https://www.youtube.com/@satishch2187">YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 CS RP Commands Zone. All rights reserved.</p>
+    <p>Made with <i class="fa fa-heart" style="color:var(--accent2)"></i> by <a href="https://www.youtube.com/@satishch2187">Satish Royal Player</a> — EN:1, EN:2, EN:3</p>
+  </div>
+</footer>
+
+<script>
+  function openMenu() {
+    document.getElementById('mobileOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    document.getElementById('mobileOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Navbar shadow on scroll
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNav');
+    nav.style.boxShadow = window.scrollY > 40 ? '0 4px 40px rgba(0,0,0,0.4)' : 'none';
+  });
+
+  // Animate progress bar
+  window.addEventListener('load', () => {
+    const target = 68;
+    const fill = document.getElementById('progressFill');
+    const pct = document.getElementById('progressPct');
+    setTimeout(() => {
+      fill.style.width = target + '%';
+      let current = 0;
+      const step = () => {
+        if (current < target) {
+          current++;
+          pct.textContent = current + '%';
+          requestAnimationFrame(step);
+        }
+      };
+      step();
+    }, 500);
+  });
+
+  // Spawn floating particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.width = p.style.height = (Math.random() > 0.5 ? 2 : 3) + 'px';
+    p.style.opacity = Math.random() * 0.5;
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>

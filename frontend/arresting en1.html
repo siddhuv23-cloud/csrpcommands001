@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrest Procedure — CS RP Commands Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  :root {
+    --bg: #050a14;
+    --surface: #0b1628;
+    --surface2: #0f1e36;
+    --accent: #00d4ff;
+    --arrest: #ec4899;
+    --arrest-dim: rgba(236,72,153,0.12);
+    --arrest-border: rgba(236,72,153,0.25);
+    --text: #e2eaf7;
+    --muted: #6a85aa;
+    --border: rgba(0,212,255,0.13);
+    --border-soft: rgba(255,255,255,0.05);
+    --glow: 0 0 30px rgba(236,72,153,0.3);
+    --cmd-bg: #060d1a;
+    --cmd-border: rgba(0,212,255,0.1);
+    --sidebar-w: 280px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+  /* Noise */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+  /* Scanlines */
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--arrest); border-radius: 3px; }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px;
+    background: rgba(5,10,20,0.9); backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: var(--accent); text-decoration: none; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+  .nav-links { display: flex; align-items: center; gap: 40px; }
+  .nav-links a { text-decoration: none; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; color: var(--muted); transition: color 0.3s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a.active { color: var(--arrest); }
+  .nav-links a.active::after { width: 100%; background: var(--arrest); }
+  .nav-cta { background: transparent !important; border: 1px solid var(--accent); color: var(--accent) !important; padding: 8px 20px; border-radius: 4px; transition: background 0.3s !important; }
+  .nav-cta:hover { background: rgba(0,212,255,0.1) !important; }
+  .nav-cta::after { display: none !important; }
+  .hamburger { display: none; color: var(--accent); font-size: 1.4rem; cursor: pointer; }
+
+  /* ===== MOBILE OVERLAY ===== */
+  .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,20,0.98); backdrop-filter: blur(20px); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 32px; }
+  .mobile-overlay.active { display: flex; }
+  .mobile-overlay a { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; color: var(--text); text-decoration: none; transition: color 0.3s; }
+  .mobile-overlay a:hover { color: var(--accent); }
+  .mobile-close { position: absolute; top: 24px; right: 24px; color: var(--muted); font-size: 1.5rem; cursor: pointer; }
+
+  /* ===== PAGE HERO ===== */
+  .page-hero {
+    position: relative; padding: 140px 48px 80px;
+    overflow: hidden; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 50vh;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(236,72,153,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(236,72,153,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+  }
+  .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); animation: pulse 6s ease-in-out infinite; pointer-events: none; }
+  .hero-orb-1 { width: 600px; height: 600px; top: -150px; left: -150px; background: rgba(236,72,153,0.07); }
+  .hero-orb-2 { width: 400px; height: 400px; bottom: -80px; right: -80px; background: rgba(0,212,255,0.06); animation-delay: 3s; }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.12); opacity: 1; } }
+
+  .page-hero-content { position: relative; z-index: 2; max-width: 780px; }
+
+  .breadcrumb { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 22px; animation: fadeUp 0.7s ease both; }
+  .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb .sep { color: rgba(255,255,255,0.12); }
+  .breadcrumb .current { color: var(--arrest); }
+
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--arrest-dim); border: 1px solid var(--arrest-border); border-radius: 100px; padding: 6px 18px; font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; letter-spacing: 2px; color: var(--arrest); margin-bottom: 24px; animation: fadeUp 0.7s 0.05s ease both; }
+  .hero-badge .dot { width: 6px; height: 6px; background: var(--arrest); border-radius: 50%; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.2; } }
+
+  /* step counter hero graphic */
+  .hero-emblem {
+    position: relative; z-index: 2; margin-bottom: 28px;
+    animation: fadeUp 0.7s ease both;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-emblem-inner {
+    width: 110px; height: 110px; border-radius: 20px;
+    border: 1px solid var(--arrest-border);
+    background: var(--arrest-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.8rem;
+    box-shadow: 0 0 40px rgba(236,72,153,0.25);
+  }
+
+  .page-hero h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5.5vw, 4rem); font-weight: 900; line-height: 1.05; letter-spacing: -1px; margin-bottom: 18px; animation: fadeUp 0.7s 0.1s ease both; }
+  .page-hero h1 .highlight { background: linear-gradient(135deg, var(--arrest), #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .page-hero p { font-size: 1rem; color: var(--muted); max-width: 520px; margin: 0 auto 36px; line-height: 1.8; animation: fadeUp 0.7s 0.15s ease both; }
+
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.7s 0.2s ease both; }
+  .btn-back { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 2px; padding: 13px 28px; border-radius: 6px; text-decoration: none; transition: all 0.3s; }
+  .btn-back:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .btn-tutorial { display: inline-flex; align-items: center; gap: 8px; background: var(--arrest); color: #1a0010; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; padding: 13px 28px; border-radius: 6px; text-decoration: none; transition: all 0.3s; box-shadow: 0 0 30px rgba(236,72,153,0.35); }
+  .btn-tutorial:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(236,72,153,0.55); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar { position: relative; z-index: 2; display: flex; justify-content: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(11,22,40,0.7); backdrop-filter: blur(12px); }
+  .stat-item { flex: 1; max-width: 200px; text-align: center; padding: 22px 16px; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 900; color: var(--arrest); display: block; }
+  .stat-label { font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 3px; display: block; }
+
+  /* ===== LAYOUT ===== */
+  .page-layout { display: flex; position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 60px 48px 100px; gap: 36px; align-items: flex-start; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; position: sticky; top: 96px; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 16px; overflow: hidden; }
+  .sidebar-header { background: var(--arrest-dim); border-bottom: 1px solid var(--arrest-border); padding: 18px 20px; }
+  .sidebar-header h4 { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 3px; color: var(--arrest); text-transform: uppercase; }
+  .sidebar-header p { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+  .sidebar-nav { padding: 12px 0; }
+  .sidebar-group-label { font-family: 'Rajdhani', sans-serif; font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; padding: 14px 20px 6px; border-top: 1px solid var(--border-soft); margin-top: 4px; }
+  .sidebar-group-label:first-child { border-top: none; margin-top: 0; }
+  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; text-decoration: none; font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--muted); transition: all 0.25s; border-left: 2px solid transparent; }
+  .sidebar-link:hover, .sidebar-link.active { color: var(--arrest); background: var(--arrest-dim); border-left-color: var(--arrest); }
+  .sidebar-link i { font-size: 0.8rem; width: 14px; text-align: center; opacity: 0.7; }
+  .step-num { font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700; color: var(--arrest); background: var(--arrest-dim); border: 1px solid var(--arrest-border); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content { flex: 1; min-width: 0; }
+
+  /* Step progress tracker */
+  .progress-bar {
+    display: flex; align-items: center;
+    margin-bottom: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 16px 24px;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .progress-step {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex: 1; min-width: 60px; position: relative;
+  }
+  .progress-step:not(:last-child)::after {
+    content: '';
+    position: absolute; top: 16px; left: calc(50% + 16px);
+    right: calc(-50% + 16px);
+    height: 1px;
+    background: var(--border-soft);
+  }
+  .progress-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid var(--border-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 700;
+    color: var(--muted); background: var(--cmd-bg);
+    transition: all 0.3s; cursor: pointer; position: relative; z-index: 1;
+  }
+  .progress-dot.done { background: var(--arrest-dim); border-color: var(--arrest); color: var(--arrest); }
+  .progress-label { font-family: 'Rajdhani', sans-serif; font-size: 0.62rem; letter-spacing: 1px; color: var(--muted); text-align: center; white-space: nowrap; }
+
+  /* Section block */
+  .cmd-section { margin-bottom: 28px; background: var(--surface); border: 1px solid var(--border-soft); border-radius: 16px; overflow: hidden; transition: border-color 0.3s; }
+  .cmd-section:hover { border-color: rgba(236,72,153,0.2); }
+
+  .section-toggle { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left; transition: background 0.25s; }
+  .section-toggle:hover { background: rgba(236,72,153,0.04); }
+  .section-toggle-left { display: flex; align-items: center; gap: 16px; }
+
+  .section-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--arrest-dim); border: 1px solid var(--arrest-border); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--arrest); flex-shrink: 0; }
+
+  /* step badge on icon */
+  .step-badge { width: 40px; height: 40px; border-radius: 10px; background: var(--arrest-dim); border: 1px solid var(--arrest-border); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 900; color: var(--arrest); flex-shrink: 0; }
+
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+  .section-count { font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 1.5px; color: var(--muted); margin-top: 2px; }
+  .section-chevron { color: var(--muted); font-size: 0.8rem; transition: transform 0.3s, color 0.3s; }
+  .cmd-section.open .section-chevron { transform: rotate(180deg); color: var(--arrest); }
+
+  .section-body { overflow: hidden; max-height: 0; transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1); border-top: 1px solid transparent; }
+  .cmd-section.open .section-body { border-top-color: var(--border-soft); }
+  .section-body-inner { padding: 20px 24px 24px; }
+
+  /* Note */
+  .cmd-note { display: flex; align-items: flex-start; gap: 10px; background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.12); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+  .cmd-note i { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+  .cmd-note strong { color: var(--text); }
+
+  /* Warning note */
+  .cmd-warn { display: flex; align-items: flex-start; gap: 10px; background: rgba(236,72,153,0.05); border: 1px solid rgba(236,72,153,0.15); border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+  .cmd-warn i { color: var(--arrest); margin-top: 2px; flex-shrink: 0; }
+  .cmd-warn strong { color: var(--text); }
+
+  /* Sub-header inside section */
+  .sub-header { font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; color: var(--arrest); text-transform: uppercase; padding: 16px 0 8px; border-bottom: 1px solid var(--border-soft); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .sub-header:first-of-type { padding-top: 0; }
+  .sub-header i { font-size: 0.75rem; opacity: 0.8; }
+
+  /* Keybind tag */
+  .keybind { display: inline-flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; color: #00d4ff; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; padding: 3px 10px; margin: 0 3px; white-space: nowrap; }
+
+  /* Command rows */
+  .cmd-row { display: flex; align-items: stretch; background: var(--cmd-bg); border: 1px solid var(--cmd-border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; transition: border-color 0.25s, box-shadow 0.25s; }
+  .cmd-row:last-child { margin-bottom: 0; }
+  .cmd-row:hover { border-color: rgba(236,72,153,0.3); box-shadow: 0 4px 20px rgba(236,72,153,0.08); }
+
+  .cmd-type { display: flex; align-items: center; justify-content: center; padding: 0 14px; min-width: 60px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; border-right: 1px solid var(--cmd-border); flex-shrink: 0; }
+  .type-say  { color: #e2eaf7; background: rgba(226,234,247,0.05); }
+  .type-me   { color: #00d4ff; background: rgba(0,212,255,0.06); }
+  .type-do   { color: #a78bfa; background: rgba(167,139,250,0.06); }
+  .type-disp { color: #ec4899; background: rgba(236,72,153,0.07); }
+
+  .cmd-text { flex: 1; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text); line-height: 1.6; word-break: break-word; }
+  .cmd-text .placeholder { color: var(--arrest); font-style: italic; }
+  .cmd-text .keyword { color: #00d4ff; }
+
+  .copy-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 20px; background: transparent; border: none; border-left: 1px solid var(--cmd-border); color: var(--muted); cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: all 0.25s; white-space: nowrap; flex-shrink: 0; }
+  .copy-btn:hover { color: var(--arrest); background: rgba(236,72,153,0.07); }
+  .copy-btn.copied { color: #10b981; }
+  .copy-btn i { font-size: 0.72rem; }
+
+  /* ===== DIVIDER ===== */
+  .divider { max-width: 1400px; margin: 0 auto; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+
+  /* ===== CTA ===== */
+  .cta-section { padding: 80px 48px; position: relative; z-index: 1; overflow: hidden; }
+  .cta-inner { max-width: 800px; margin: 0 auto; background: linear-gradient(135deg, rgba(236,72,153,0.06), rgba(0,212,255,0.04)); border: 1px solid var(--arrest-border); border-radius: 24px; padding: 64px 48px; text-align: center; position: relative; overflow: hidden; }
+  .cta-inner::before { content: ''; position: absolute; top: -40%; left: 50%; transform: translateX(-50%); width: 400px; height: 400px; background: radial-gradient(circle, rgba(236,72,153,0.1), transparent 70%); pointer-events: none; }
+  .cta-glyph { font-family: 'Orbitron', sans-serif; font-size: 4rem; color: rgba(236,72,153,0.05); position: absolute; bottom: 16px; right: 28px; pointer-events: none; user-select: none; }
+  .cta-inner h2 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 900; color: var(--text); margin-bottom: 14px; position: relative; z-index: 1; }
+  .cta-inner p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; max-width: 480px; margin: 0 auto 36px; position: relative; z-index: 1; }
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .btn-discord { display: inline-flex; align-items: center; gap: 10px; background: #5865F2; color: #fff; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; padding: 14px 32px; border-radius: 6px; text-decoration: none; transition: all 0.3s; box-shadow: 0 0 28px rgba(88,101,242,0.4); }
+  .btn-discord:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(88,101,242,0.6); }
+  .btn-outline { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--text); font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 0.88rem; letter-spacing: 2px; padding: 14px 32px; border-radius: 6px; text-decoration: none; transition: all 0.3s; }
+  .btn-outline:hover { border-color: var(--arrest); color: var(--arrest); transform: translateY(-2px); }
+
+  /* ===== FOOTER ===== */
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--border); background: rgba(5,10,20,0.85); padding: 56px 48px 36px; }
+  .footer-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; flex-wrap: wrap; }
+  .footer-brand p { color: var(--muted); font-size: 0.84rem; line-height: 1.7; max-width: 260px; }
+  .footer-socials { display: flex; gap: 10px; margin-top: 20px; }
+  .social-btn { width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: all 0.3s; }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .footer-links h4 { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.78rem; letter-spacing: 2px; color: var(--arrest); text-transform: uppercase; margin-bottom: 18px; }
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .footer-links ul li a { text-decoration: none; color: var(--muted); font-size: 0.86rem; transition: color 0.3s; }
+  .footer-links ul li a:hover { color: var(--text); }
+  .footer-bottom { max-width: 1400px; margin: 36px auto 0; padding-top: 22px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-bottom p { color: var(--muted); font-size: 0.8rem; }
+  .footer-bottom a { color: var(--accent); text-decoration: none; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) { .page-layout { flex-direction: column; padding: 40px 24px 80px; } .sidebar { width: 100%; position: static; } .progress-bar { display: none; } }
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; } .nav-links { display: none; } .hamburger { display: block; }
+    .page-hero { padding: 120px 24px 60px; } .cta-section { padding: 60px 24px; } .cta-inner { padding: 40px 20px; }
+    footer { padding: 44px 24px 28px; } .footer-inner { flex-direction: column; gap: 36px; } .footer-bottom { flex-direction: column; text-align: center; }
+    .stats-bar { flex-wrap: wrap; } .stat-item { min-width: 50%; border-bottom: 1px solid var(--border); }
+    .cmd-text { font-size: 0.75rem; } .copy-btn { padding: 0 12px; font-size: 0; } .copy-btn i { font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.png" alt="CS RP" style="height:42px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+  </a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="about.html">ABOUT</a>
+    <a href="rpzone.html" class="active">RP ZONE</a>
+    <a href="https://discord.gg/MmtqhsJJPF" class="nav-cta">DISCORD</a>
+  </div>
+  <i class="fa fa-bars hamburger" onclick="openMenu()"></i>
+</nav>
+
+<div class="mobile-overlay" id="mobileOverlay">
+  <i class="fa fa-close mobile-close" onclick="closeMenu()"></i>
+  <a href="index.html" onclick="closeMenu()">HOME</a>
+  <a href="about.html" onclick="closeMenu()">ABOUT</a>
+  <a href="rpzone.html" onclick="closeMenu()">RP ZONE</a>
+  <a href="https://discord.gg/MmtqhsJJPF" onclick="closeMenu()">DISCORD</a>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<section class="page-hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="page-hero-content">
+    <div class="breadcrumb">
+      <a href="index.html">HOME</a><span class="sep">/</span>
+      <a href="rpzone.html">RP ZONE</a><span class="sep">/</span>
+      <a href="en%201%20main.html">GRAND EN:1</a><span class="sep">/</span>
+      <span class="current">ARREST PROCEDURE</span>
+    </div>
+    <div class="hero-emblem">
+      <div class="hero-emblem-inner">⛓️</div>
+    </div>
+    <div class="hero-badge"><span class="dot"></span>LAW ENFORCEMENT — EN:1 PROCEDURE</div>
+    <h1><span class="highlight">Arrest</span> Procedure</h1>
+    <p>Complete 7-step arrest protocol for all EN:1 law enforcement officers. Covers handcuffing, transport, Miranda rights, DOC processing, and documentation.</p>
+    <div class="hero-actions">
+      <a href="en%201%20main.html" class="btn-back"><i class="fa fa-arrow-left"></i> Back to EN:1</a>
+      <a href="https://www.youtube.com/watch?v=BmRTNnWVkao" target="_blank" class="btn-tutorial"><i class="fa fa-play-circle"></i> Watch Tutorial</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">7</span><span class="stat-label">Steps</span></div>
+  <div class="stat-item"><span class="stat-num">20+</span><span class="stat-label">Commands</span></div>
+  <div class="stat-item"><span class="stat-num">6</span><span class="stat-label">Miranda Rights</span></div>
+  <div class="stat-item"><span class="stat-num">EN:1</span><span class="stat-label">Server</span></div>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="page-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h4>Arrest Steps</h4>
+      <p>Click any step to jump</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-group-label">Arrest Flow</div>
+      <a href="#s-step1" class="sidebar-link"><span class="step-num">1</span> Handcuffing</a>
+      <a href="#s-step2" class="sidebar-link"><span class="step-num">2</span> Move Suspect</a>
+      <a href="#s-step3" class="sidebar-link"><span class="step-num">3</span> Place in Vehicle</a>
+      <a href="#s-step4" class="sidebar-link"><span class="step-num">4</span> Transport &amp; Miranda</a>
+      <a href="#s-step5" class="sidebar-link"><span class="step-num">5</span> Lawyer Requests</a>
+      <a href="#s-step6" class="sidebar-link"><span class="step-num">6</span> Arrival at DOC</a>
+      <a href="#s-step7" class="sidebar-link"><span class="step-num">7</span> Process &amp; Document</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Step progress tracker -->
+    <div class="progress-bar">
+      <div class="progress-step"><div class="progress-dot done" onclick="scrollToStep('s-step1')">1</div><div class="progress-label">Handcuff</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step2')">2</div><div class="progress-label">Move</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step3')">3</div><div class="progress-label">Vehicle</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step4')">4</div><div class="progress-label">Miranda</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step5')">5</div><div class="progress-label">Lawyer</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step6')">6</div><div class="progress-label">DOC</div></div>
+      <div class="progress-step"><div class="progress-dot" onclick="scrollToStep('s-step7')">7</div><div class="progress-label">Process</div></div>
+    </div>
+
+    <!-- ── STEP 1: HANDCUFFING ── -->
+    <div class="cmd-section open" id="s-step1">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">01</div>
+          <div>
+            <div class="section-title">Handcuffing</div>
+            <div class="section-count">1 command · Keybind: Flex Z</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Press <span class="keybind">Flex Z</span> with <strong>no weapon equipped</strong> to handcuff the suspect. Warn them if they resist — use force only if necessary.</div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">I am going to be putting you in handcuffs now, please stand still.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: MOVE SUSPECT ── -->
+    <div class="cmd-section" id="s-step2">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">02</div>
+          <div>
+            <div class="section-title">Move Suspect</div>
+            <div class="section-count">1 command · Keybind: Flex X</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Press <span class="keybind">Flex X</span> to grab the suspect by the arm and escort them to the vehicle. Remind them to watch their head.</div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">I am going to be grabbing you by the arm now.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: PLACE IN VEHICLE ── -->
+    <div class="cmd-section" id="s-step3">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">03</div>
+          <div>
+            <div class="section-title">Place in Vehicle</div>
+            <div class="section-count">1 command · Keybind: Flex G</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Press <span class="keybind">Flex G</span> on the suspect to place them inside the vehicle. Inform them of all charges at this point.</div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">I am going to be placing you in the vehicle now, please watch your head.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: TRANSPORT & MIRANDA ── -->
+    <div class="cmd-section" id="s-step4">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">04</div>
+          <div>
+            <div class="section-title">Transport &amp; Miranda Rights</div>
+            <div class="section-count">7 commands</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Drive carefully to DOC — do not exceed the speed limit during transport.</div>
+
+          <div class="sub-header"><i class="fa fa-radio"></i> Dispatch Call</div>
+          <div class="cmd-row"><div class="cmd-type type-disp">DISP</div><div class="cmd-text"><span class="placeholder">(BADGE NUMBER)</span> to dispatch, I am 10-17 to DOC with <span class="placeholder">(NUMBER)</span> of 10-15 and <span class="placeholder">(ADDITIONALS/CONVOY)</span>.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+
+          <div class="sub-header" style="margin-top:16px;"><i class="fa fa-gavel"></i> Miranda Rights</div>
+          <div class="cmd-warn"><i class="fa fa-exclamation-triangle"></i> If the suspect doesn't respond, wait <strong>5 seconds</strong> and repeat. Do this a total of <strong>3 times</strong>. After the third ignore, inform them their rights have been read.</div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">You are under arrest,</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">You have the right to remain silent,</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">Anything you say can and will be used against you in the court of law.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">You have the right to an attorney,</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">If you cannot afford an attorney, one will be appointed to you by the state if available.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">Do you understand the rights I just read to you?</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 5: LAWYER REQUESTS ── -->
+    <div class="cmd-section" id="s-step5">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">05</div>
+          <div>
+            <div class="section-title">Lawyer Requests</div>
+            <div class="section-count">1 command · pause timer if requested</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-warn"><i class="fa fa-exclamation-triangle"></i> <strong>Pause the 25-minute timer</strong> if the suspect requests a lawyer.</div>
+          <div class="cmd-row"><div class="cmd-type type-disp">DISP</div><div class="cmd-text"><span class="placeholder">(BADGE NUMBER)</span> to dispatch, my 10-15 requests a state lawyer at DOC.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+
+          <div class="sub-header" style="margin-top:16px;"><i class="fa fa-briefcase"></i> Private Lawyer</div>
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Get their phone number immediately. Ask to see their lawyer's license. If unavailable after <strong>15 minutes</strong> or <strong>3 attempts</strong>, offer a state lawyer instead.</div>
+
+          <div class="sub-header"><i class="fa fa-institution"></i> State Lawyer</div>
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Contact dispatch to check available options.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 6: ARRIVAL AT DOC ── -->
+    <div class="cmd-section" id="s-step6">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">06</div>
+          <div>
+            <div class="section-title">Arrival at DOC</div>
+            <div class="section-count">4 commands · Keybind: Flex G</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Approach the vehicle and press <span class="keybind">Flex G</span> on the car. Select <strong>Passengers &gt; Click</strong> to extract the suspect.</div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">Taking you out of the car, please watch your head.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-say">SAY</div><div class="cmd-text">I am going to be grabbing you by the arm now.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-me">/me</div><div class="cmd-text">takes the <span class="placeholder">XYZ</span> size jumpsuit from the desk</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-note" style="margin-top:10px;"><i class="fa fa-info-circle"></i> Replace <strong>XYZ</strong> with the exact size the 10-15 requested. Take the suspect to a cell and lock the door behind you. Tell them you will check their pockets for their passport.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 7: PROCESS & DOCUMENTATION ── -->
+    <div class="cmd-section" id="s-step7">
+      <button class="section-toggle" onclick="toggleSection(this)">
+        <div class="section-toggle-left">
+          <div class="step-badge">07</div>
+          <div>
+            <div class="section-title">Process &amp; Documentation</div>
+            <div class="section-count">4 commands · final step</div>
+          </div>
+        </div>
+        <i class="fa fa-chevron-down section-chevron"></i>
+      </button>
+      <div class="section-body">
+        <div class="section-body-inner">
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Always escort the suspect to a cell and <strong>lock the doors</strong>. Prepare the jumpsuit and inform the suspect you will check their pockets for a passport.</div>
+          <div class="cmd-row"><div class="cmd-type type-me">/me</div><div class="cmd-text">drops the jumpsuit on the bed</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-row"><div class="cmd-type type-me">/me</div><div class="cmd-text">reaches into suspect's pockets to check passport</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+
+          <div class="sub-header" style="margin-top:16px;"><i class="fa fa-search"></i> Searching the Suspect</div>
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Press <span class="keybind">Flex G</span>, check organization info, and collect personal information. Search for illegal items — only <strong>AMMO-tagged</strong> firearms are allowed if licensed. Take a photo and log all confiscated items. Allow the suspect to remove their mask; ensure safety if they resist.</div>
+
+          <div class="sub-header"><i class="fa fa-file-text-o"></i> Charges &amp; Sentencing</div>
+          <div class="cmd-note"><i class="fa fa-info-circle"></i> Inform the suspect of their accusations, sentence, and fines. Pull your PDA and enter all charges. Ask final questions and prepare to put them in the jumpsuit.</div>
+
+          <div class="cmd-row"><div class="cmd-type type-me">/me</div><div class="cmd-text">puts suspect in jumpsuit</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+          <div class="cmd-note" style="margin-top:10px;"><i class="fa fa-info-circle"></i> Press <span class="keybind">Flex G</span>, select organization, and arrest the suspect. If sending to Isolation, adjust flex and arrest accordingly. Exit the cell and lock all doors.</div>
+
+          <div class="sub-header"><i class="fa fa-radio"></i> Final Dispatch Confirmation</div>
+          <div class="cmd-row"><div class="cmd-type type-disp">DISP</div><div class="cmd-text"><span class="placeholder">(BADGE NUMBER)</span> to dispatch, last 10-15 is now 10-99, returning 10-19.</div><button class="copy-btn"><i class="fa fa-copy"></i> Copy</button></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-glyph">{ }</div>
+    <h2>Need the Full Tutorial?</h2>
+    <p>Watch the official arrest procedure video tutorial or join the Discord to ask questions and get support from the community.</p>
+    <div class="cta-btns">
+      <a href="https://www.youtube.com/watch?v=BmRTNnWVkao" target="_blank" class="btn-tutorial" style="padding:14px 32px;">
+        <i class="fa fa-play-circle"></i> WATCH TUTORIAL
+      </a>
+      <a href="https://discord.gg/MmtqhsJJPF" class="btn-discord">
+        <i class="fa fa-comments"></i> JOIN DISCORD
+      </a>
+      <a href="en%201%20main.html" class="btn-outline">
+        <i class="fa fa-arrow-left"></i> BACK TO EN:1
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="images/logo.png" alt="CS RP Commands Zone" style="height:38px;width:auto;object-fit:contain;margin-bottom:12px;display:block;" onerror="this.style.display='none'">
+      <p>Your definitive resource for Grand RP commands, organization guides, and roleplay rules. Built by players, for players.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fa fa-facebook"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fa fa-linkedin"></i></a>
+        <a href="https://www.youtube.com/@satishch2187" class="social-btn"><i class="fa fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="rpzone.html">RP Zone</a></li>
+        <li><a href="en%201%20main.html">Grand EN:1</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>EN:1 Guides</h4>
+      <ul>
+        <li><a href="arresting%20en1.html">Arrest Procedure</a></li>
+        <li><a href="training%20en1.html">Training Guide</a></li>
+        <li><a href="fib%20en1.html">FIB Commands</a></li>
+        <li><a href="lspd%20en1.html">LSPD Commands</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Community</h4>
+      <ul>
+        <li><a href="https://discord.gg/MmtqhsJJPF">Discord</a></li>
+        <li><a href="https://gta5grand.com/?ref=75647">Grand RP</a></li>
+        <li><a href="https://www.youtube.com/@satishch2187">YouTube</a></li>
+        <li><a href="https://gta5grand.com/forum/en/">EN:1 Forum</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 CS RP Commands Zone. All rights reserved.</p>
+    <p>Made with <i class="fa fa-heart" style="color:var(--arrest)"></i> by <a href="https://www.youtube.com/@satishch2187">Satish Royal Player</a> — EN:1, EN:2, EN:3</p>
+  </div>
+</footer>
+
+<script>
+  /* ── NAV ── */
+  function openMenu() { document.getElementById('mobileOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
+  function closeMenu() { document.getElementById('mobileOverlay').classList.remove('active'); document.body.style.overflow=''; }
+
+  /* ── ACCORDION ── */
+  function toggleSection(btn) {
+    const section = btn.closest('.cmd-section');
+    const body = section.querySelector('.section-body');
+    const isOpen = section.classList.contains('open');
+    if (isOpen) {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(() => { body.style.maxHeight = '0'; });
+      section.classList.remove('open');
+    } else {
+      section.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      setTimeout(() => { if (section.classList.contains('open')) body.style.maxHeight = 'none'; }, 460);
+    }
+  }
+
+  /* Open first section on load */
+  document.querySelectorAll('.cmd-section.open').forEach(s => {
+    s.querySelector('.section-body').style.maxHeight = 'none';
+  });
+
+  /* ── SCROLL TO STEP ── */
+  function scrollToStep(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 100;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+    if (!el.classList.contains('open')) toggleSection(el.querySelector('.section-toggle'));
+  }
+
+  /* ── COPY BUTTONS ── */
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const row = btn.closest('.cmd-row');
+      const text = row.querySelector('.cmd-text').innerText.trim();
+      const typeEl = row.querySelector('.cmd-type');
+      const type = typeEl ? typeEl.innerText.trim() : '';
+      const fullText = (type === '/me' || type === '/do') ? type + ' ' + text : text;
+      navigator.clipboard.writeText(fullText).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fa fa-check"></i> Copied';
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="fa fa-copy"></i> Copy'; }, 1600);
+      });
+    });
+  });
+
+  /* ── SIDEBAR + PROGRESS DOT ACTIVE ── */
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  const progressDots = document.querySelectorAll('.progress-dot');
+  const stepIds = ['s-step1','s-step2','s-step3','s-step4','s-step5','s-step6','s-step7'];
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar-link[href="#${id}"]`);
+        if (link) link.classList.add('active');
+
+        // light up progress dots up to current step
+        const idx = stepIds.indexOf(id);
+        progressDots.forEach((dot, i) => {
+          dot.classList.toggle('done', i <= idx);
+        });
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-80px 0px -60% 0px' });
+
+  stepIds.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+  /* ── NAVBAR SCROLL SHADOW ── */
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.boxShadow = window.scrollY > 40 ? '0 4px 40px rgba(0,0,0,0.5)' : 'none';
+  });
+
+  /* ── SCROLL REVEAL ── */
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('.cmd-section').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = `opacity 0.5s ${i * 0.06}s ease, transform 0.5s ${i * 0.06}s ease, border-color 0.3s`;
+    revealObs.observe(el);
+  });
+</script>
+</body>
+</html>
