@@ -1,4 +1,4 @@
-name: Deploy Clean Frontend
+name: Deploy Final Fix
 
 on:
   push:
@@ -24,18 +24,24 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # ✅ Clean unwanted files before upload
-      - name: Clean frontend
+      # ✅ Create clean folder (VERY IMPORTANT)
+      - name: Prepare clean build
         run: |
-          rm -rf frontend/.git
-          rm -rf frontend/node_modules
-          rm -rf frontend/.github
+          mkdir public
+          cp -r frontend/* public/
 
-      - name: Upload
+          # Remove hidden/problem files
+          rm -rf public/.git
+          rm -rf public/.github
+          rm -rf public/node_modules
+          find public -name ".DS_Store" -delete
+
+      # ✅ Upload ONLY clean files
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          path: ./frontend
+          path: ./public
 
       - name: Deploy
         uses: actions/deploy-pages@v4
