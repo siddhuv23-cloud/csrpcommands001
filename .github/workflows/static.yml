@@ -1,4 +1,4 @@
-name: Deploy Final Fix
+name: Deploy Final Clean
 
 on:
   push:
@@ -18,30 +18,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      # ✅ Create clean folder (VERY IMPORTANT)
-      - name: Prepare clean build
+      # ✅ Create CLEAN folder with ONLY valid files
+      - name: Create clean site
         run: |
           mkdir public
-          cp -r frontend/* public/
 
-          # Remove hidden/problem files
-          rm -rf public/.git
-          rm -rf public/.github
-          rm -rf public/node_modules
-          find public -name ".DS_Store" -delete
+          # Copy only safe file types
+          find frontend -type f \( \
+            -name "*.html" -o \
+            -name "*.css" -o \
+            -name "*.js" -o \
+            -name "*.png" -o \
+            -name "*.jpg" -o \
+            -name "*.jpeg" -o \
+            -name "*.gif" -o \
+            -name "*.svg" \
+          \) -exec cp --parents {} public/ \;
 
-      # ✅ Upload ONLY clean files
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: github-pages
           path: ./public
 
-      - name: Deploy
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
