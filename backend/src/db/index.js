@@ -32,20 +32,50 @@
 
 
 
+// import mongoose from "mongoose";
+// import { DB_NAME } from "../constants.js";
+
+// const connectDB = async () => {
+//   try {
+//     const connectionInstance = await mongoose.connect(
+//       process.env.MONGO_URI
+//     );
+
+//     console.log(
+//       `\nMongoDB Connected! DB HOST: ${connectionInstance.connection.host}`
+//     );
+//   } catch (error) {
+//     console.error("MongoDB Connection Error:", error);
+//     process.exit(1);
+//   }
+// };
+
+// export default connectDB;
+
+
+
+
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";
 
 const connectDB = async () => {
   try {
+    if (!process.env.MONGO_URI) {
+      throw new Error("MONGO_URI is not defined");
+    }
+
     const connectionInstance = await mongoose.connect(
-      process.env.MONGO_URI
+      process.env.MONGO_URI,
+      {
+        dbName: DB_NAME,
+      }
     );
 
     console.log(
-      `\nMongoDB Connected! DB HOST: ${connectionInstance.connection.host}`
+      `MongoDB Connected! HOST: ${connectionInstance.connection.host}`
     );
   } catch (error) {
-    console.error("MongoDB Connection Error:", error);
+    console.error("MongoDB Connection Error:", error.message);
     process.exit(1);
   }
 };
