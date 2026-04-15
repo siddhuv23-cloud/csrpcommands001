@@ -1,4 +1,4 @@
-name: Deploy Frontend Only
+name: Deploy Clean Frontend
 
 on:
   push:
@@ -18,16 +18,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/configure-pages@v5
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-      # ❌ REMOVE setup-node (not needed for static site)
-      # - uses: actions/setup-node@v4
+      # ✅ Clean unwanted files before upload
+      - name: Clean frontend
+        run: |
+          rm -rf frontend/.git
+          rm -rf frontend/node_modules
+          rm -rf frontend/.github
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload
+        uses: actions/upload-artifact@v4
         with:
           name: github-pages
           path: ./frontend
 
-      - uses: actions/deploy-pages@v4
+      - name: Deploy
+        uses: actions/deploy-pages@v4
