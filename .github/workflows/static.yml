@@ -1,46 +1,34 @@
-name: Deploy Final Clean
+name: Deploy (Official Fix)
 
 on:
   push:
     branches:
       - main
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: read
   pages: write
   id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # ✅ Create CLEAN folder with ONLY valid files
-      - name: Create clean site
-        run: |
-          mkdir public
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-          # Copy only safe file types
-          find frontend -type f \( \
-            -name "*.html" -o \
-            -name "*.css" -o \
-            -name "*.js" -o \
-            -name "*.png" -o \
-            -name "*.jpg" -o \
-            -name "*.jpeg" -o \
-            -name "*.gif" -o \
-            -name "*.svg" \
-          \) -exec cp --parents {} public/ \;
-
-      - uses: actions/upload-artifact@v4
+      # ✅ THIS is the correct way (no artifact issues)
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: ./public
+          path: ./frontend
 
-      - uses: actions/deploy-pages@v4
+      - name: Deploy
+        uses: actions/deploy-pages@v4
